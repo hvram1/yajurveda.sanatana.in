@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="अन्वेषणम् - Search">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-3xl text-indigo mb-6 text-center">अन्वेषणम्</h1>
+    <p class="text-center text-gray-600 mb-8">Search the Taittiriya Samhita</p>
+
+    <div class="verse-card">
+      <input 
+        type="text" 
+        id="search-input"
+        placeholder="Search in Sanskrit or reference (e.g., 1.1.1.1)..."
+        class="w-full px-4 py-3 border border-teal-200 rounded-lg focus:outline-none focus:border-primary text-lg"
+      />
+    </div>
+
+    <div id="search-results" class="mt-8 space-y-4">
+      <!-- Results will be inserted here -->
+    </div>
+
+    <div id="loading" class="hidden text-center text-gray-500 mt-8">
+      Searching...
+    </div>
+
+    <div id="no-results" class="hidden text-center text-gray-500 mt-8">
+      No results found. Try a different search term.
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ base }}>
+  let searchData = null;
+  let fuse = null;
+
+  async function loadSearchIndex() {
+    if (searchData) return;
+    
+    try {
+      const response = await fetch(`${base}search-index.json`);
+      searchData = await response.json();
+      
+      // Initialize Fuse.js
+      const Fuse = (await import('https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.mjs')).default;
+      fuse = new Fuse(searchData, {
+        keys: ['samhita', 'pada', 'id'],
+        threshold: 0.3,
+        includeScore: true,
+        minMatchCharLength: 2
+      });
+    } catch (error) {
+      console.error('Failed to load search index:', error);
+    }
+  }
+
+  function renderResults(results) {
+    const container = document.getElementById('search-results');
+    const noResults = document.getElementById('no-results');
+    
+    if (results.length === 0) {
+      container.innerHTML = '';
+      noResults.classList.remove('hidden');
+      return;
+    }
+    
+    noResults.classList.add('hidden');
+    container.innerHTML = results.slice(0, 50).map(result => {
+      const item = result.item;
+      const [k, p, a, ps] = [
+        item.classification.kanda,
+        item.classification.prasna,
+        item.classification.anuvaka,
+        item.classification.panchasat
+      ];
+      
+      return `
+        <a href="${base}panchasat/${k}/${p}/${a}/${ps}" class="block verse-card hover:shadow-lg transition-all">
+          <div class="font-semibold text-primary mb-2">${item.id}</div>
+          <div class="text-gray-700 text-sm line-clamp-2">${item.samhita.substring(0, 200)}...</div>
+        </a>
+      `;
+    }).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('search-input');
+    const loading = document.getElementById('loading');
+    let debounceTimer;
+
+    input.addEventListener('input', async (e) => {
+      const query = e.target.value.trim();
+      
+      if (query.length < 2) {
+        document.getElementById('search-results').innerHTML = '';
+        document.getElementById('no-results').classList.add('hidden');
+        return;
+      }
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        loading.classList.remove('hidden');
+        
+        await loadSearchIndex();
+        
+        if (fuse) {
+          const results = fuse.search(query);
+          renderResults(results);
+        }
+        
+        loading.classList.add('hidden');
+      }, 300);
+    });
+  });
+</script>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getStructureIndex, KANDA_NAMES, KANDA_NAMES_EN } from '../../lib/utils';
+import { getAudioUrl } from '../../lib/config';
+
+export function getStaticPaths() {
+  const structure = getStructureIndex();
+  return structure.kandas.map(kanda => ({
+    params: { id: String(kanda.id) }
+  }));
+}
+
+const { id } = Astro.params;
+const kandaNum = parseInt(id);
+const structure = getStructureIndex();
+const kanda = structure.kandas.find(k => k.id === kandaNum);
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title={`${KANDA_NAMES[kandaNum]}`}>
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb mb-6 text-sm">
+    <a href={base}>मुख्यपृष्ठम्</a>
+    <span class="mx-2">›</span>
+    <span>{KANDA_NAMES[kandaNum]}</span>
+  </nav>
+
+  <div class="text-center mb-8">
+    <div class="kanda-circle mx-auto mb-4">
+      {kandaNum}
+    </div>
+    <h1 class="text-3xl text-indigo mb-2">{KANDA_NAMES[kandaNum]}</h1>
+    <p class="text-gray-600">{KANDA_NAMES_EN[kandaNum]}</p>
+    <p class="text-sm text-gray-500 mt-2">
+      {kanda?.prasnas.length} प्रश्नाः | 
+      {kanda?.prasnas.reduce((sum, p) => sum + p.anuvakas.length, 0)} अनुवाकाः
+    </p>
+  </div>
+
+  <div class="fancy mb-8">
+    <span>॥</span>
+  </div>
+
+  <!-- Prasna List -->
+  <section>
+    <h2 class="text-xl text-indigo mb-6">प्रश्नाः (Chapters)</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+      {kanda?.prasnas.map(prasna => (
+        <a 
+          href={`${base}prasna/${kandaNum}/${prasna.id}`}
+          class="prasna-link verse-card text-center hover:shadow-lg transition-all"
+        >
+          <div class="text-2xl font-bold text-primary mb-1">{prasna.id}</div>
+          <div class="text-xs text-gray-500">
+            {prasna.anuvakas.length} अनुवाकाः
+          </div>
+          <div class="text-xs text-gray-400 mt-1">
+            {prasna.anuvakas.reduce((sum, a) => sum + a.panchasatCount, 0)} पञ्चाशत्
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Navigation -->
+  <div class="flex justify-between mt-12 pt-4 border-t">
+    {kandaNum > 1 ? (
+      <a href={`${base}kanda/${kandaNum - 1}`} class="nav-link bg-teal-50 rounded">
+        ← काण्डम् {kandaNum - 1}
+      </a>
+    ) : <div />}
+    {kandaNum < 7 ? (
+      <a href={`${base}kanda/${kandaNum + 1}`} class="nav-link bg-teal-50 rounded">
+        काण्डम् {kandaNum + 1} →
+      </a>
+    ) : <div />}
+  </div>
+</BaseLayout>

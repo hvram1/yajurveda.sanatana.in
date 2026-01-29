@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="Documentation">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-3xl text-indigo mb-6">Documentation</h1>
+
+    <div class="verse-card mb-6">
+      <h2 class="text-xl text-primary mb-4">About This Project</h2>
+      <p class="text-gray-700 mb-4">
+        This website presents the Krishna Yajurveda Taittiriya Samhita with:
+      </p>
+      <ul class="list-disc list-inside text-gray-700 space-y-2">
+        <li>Samhita Patha (continuous text)</li>
+        <li>Pada Patha (word-by-word split)</li>
+        <li>Sayana Bhashya (commentary) where available</li>
+        <li>Bhatta Bhaskara Bhashya where available</li>
+        <li>Audio recordings per Prasna</li>
+      </ul>
+    </div>
+
+    <div class="verse-card mb-6">
+      <h2 class="text-xl text-primary mb-4">Structure</h2>
+      <p class="text-gray-700 mb-4">
+        The Taittiriya Samhita is organized hierarchically:
+      </p>
+      <ul class="list-disc list-inside text-gray-700 space-y-2">
+        <li><strong>काण्डम् (Kanda)</strong> - 7 major divisions</li>
+        <li><strong>प्रश्नः (Prasna)</strong> - Chapters within each Kanda</li>
+        <li><strong>अनुवाकः (Anuvaka)</strong> - Sections within each Prasna</li>
+        <li><strong>पञ्चाशत् (Panchasat)</strong> - Individual verse groups</li>
+      </ul>
+    </div>
+
+    <div class="verse-card mb-6">
+      <h2 class="text-xl text-primary mb-4">Audio</h2>
+      <p class="text-gray-700 mb-4">
+        Audio recordings are available for each Prasna. The audio player supports:
+      </p>
+      <ul class="list-disc list-inside text-gray-700 space-y-2">
+        <li>Full Prasna playback</li>
+        <li>Start/end time markers (to be added for individual verses)</li>
+      </ul>
+    </div>
+
+    <div class="verse-card mb-6">
+      <h2 class="text-xl text-primary mb-4">Planned Features</h2>
+      <ul class="list-disc list-inside text-gray-700 space-y-2">
+        <li>Rishi, Devata, and Chandas information</li>
+        <li>Time markers for individual Panchasat audio segments</li>
+        <li>Krama, Jata, and Ghana Patha display</li>
+        <li>Advanced search capabilities</li>
+      </ul>
+    </div>
+
+    <div class="verse-card">
+      <h2 class="text-xl text-primary mb-4">Reference Format</h2>
+      <p class="text-gray-700">
+        Verses are referenced as <code class="bg-teal-50 px-2 py-1 rounded">TS K.P.A.Ps</code> where:
+      </p>
+      <ul class="list-disc list-inside text-gray-700 space-y-2 mt-4">
+        <li>K = Kanda number (1-7)</li>
+        <li>P = Prasna number</li>
+        <li>A = Anuvaka number</li>
+        <li>Ps = Panchasat number</li>
+      </ul>
+      <p class="text-gray-600 mt-4 text-sm">
+        Example: TS 1.1.1.1 refers to Kanda 1, Prasna 1, Anuvaka 1, Panchasat 1
+      </p>
+    </div>
+  </div>
+</BaseLayout>

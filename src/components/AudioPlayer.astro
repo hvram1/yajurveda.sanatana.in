@@ -1,0 +1,98 @@
+---
+interface Props {
+  src: string;
+  startTime?: number;  // Start time in seconds
+  endTime?: number;    // End time in seconds
+  label?: string;
+}
+
+const { src, startTime, endTime, label } = Astro.props;
+const hasMarkers = startTime !== undefined || endTime !== undefined;
+const playerId = `audio-${Math.random().toString(36).substr(2, 9)}`;
+---
+
+<div class="audio-container mb-4">
+  {label && (
+    <p class="text-sm text-gray-600 mb-2">{label}</p>
+  )}
+  <audio 
+    id={playerId}
+    controls 
+    class="audio-player w-full"
+    data-start-time={startTime}
+    data-end-time={endTime}
+  >
+    <source src={src} type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+  
+  {hasMarkers && (
+    <div class="marker-info mt-2 text-xs text-gray-500">
+      {startTime !== undefined && <span>Start: {formatTime(startTime)}</span>}
+      {startTime !== undefined && endTime !== undefined && <span> | </span>}
+      {endTime !== undefined && <span>End: {formatTime(endTime)}</span>}
+    </div>
+  )}
+</div>
+
+<script define:vars={{ playerId, startTime, endTime }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const audio = document.getElementById(playerId);
+    if (!audio) return;
+    
+    // Set start time when audio loads
+    if (startTime !== undefined && startTime !== null) {
+      audio.addEventListener('loadedmetadata', () => {
+        audio.currentTime = startTime;
+      });
+      
+      // Also set on play if not already at start time
+      audio.addEventListener('play', () => {
+        if (audio.currentTime < startTime) {
+          audio.currentTime = startTime;
+        }
+      });
+    }
+    
+    // Stop at end time
+    if (endTime !== undefined && endTime !== null) {
+      audio.addEventListener('timeupdate', () => {
+        if (audio.currentTime >= endTime) {
+          audio.pause();
+          audio.currentTime = startTime || 0;
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  .audio-container {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .audio-player {
+    width: 100%;
+    height: 40px;
+  }
+  
+  .audio-player::-webkit-media-controls-panel {
+    background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+  }
+  
+  .marker-info {
+    font-family: 'Raleway', sans-serif;
+  }
+</style>
+
+<script>
+  // Helper function available globally
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+</script>

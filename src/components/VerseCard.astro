@@ -1,0 +1,82 @@
+---
+import type { PanchasatData } from '../lib/utils';
+
+interface Props {
+  verse: PanchasatData;
+  showDetails?: boolean;
+}
+
+const { verse, showDetails = false } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+const kanda = parseInt(verse.classification.kanda);
+const prasna = parseInt(verse.classification.prasna);
+const anuvaka = parseInt(verse.classification.anuvaka);
+const panchasat = parseInt(verse.classification.panchasat);
+---
+
+<article class="verse-card group" id={`verse-${verse.id.replace(/\s+/g, '-')}`}>
+  <header class="mb-4 flex items-center justify-between">
+    <a 
+      href={`${base}panchasat/${kanda}/${prasna}/${anuvaka}/${panchasat}`}
+      class="text-lg font-semibold text-primary hover:text-accent transition-colors"
+    >
+      {verse.id}
+    </a>
+    {verse.header && (
+      <span class="text-sm text-gray-500">{verse.header}</span>
+    )}
+  </header>
+
+  <!-- Samhita Patha -->
+  <div class="sanskrit-text text-center mb-4 text-gray-800 leading-relaxed">
+    {verse.samhita}
+  </div>
+
+  <!-- Pada Patha (collapsible) -->
+  <details class="collapsible mt-4 border-t pt-4">
+    <summary class="collapsible-header">
+      <span class="collapsible-icon">▶</span>
+      पदपाठः (Word-by-word)
+    </summary>
+    <div class="mt-3 text-base text-gray-700 leading-loose sanskrit-text" style="font-size: 18px;">
+      {verse.pada}
+    </div>
+  </details>
+
+  <!-- Metadata footer -->
+  <footer class="mt-4 pt-4 border-t border-teal-100 flex flex-wrap gap-4 text-sm">
+    {verse.padaCount > 0 && (
+      <div>
+        <span class="text-gray-500">पदसंख्या:</span>
+        <span class="ml-1 text-gray-600">{verse.padaCount}</span>
+      </div>
+    )}
+  </footer>
+
+  <!-- Sayana Bhashya (if available and showDetails) -->
+  {showDetails && verse.sayanaBhashya && (
+    <details class="collapsible mt-4 border-t pt-4">
+      <summary class="collapsible-header">
+        <span class="collapsible-icon">▶</span>
+        सायणभाष्यम् (Sayana Commentary)
+      </summary>
+      <div class="mt-3 prose prose-teal max-w-none text-sm whitespace-pre-wrap">
+        {verse.sayanaBhashya}
+      </div>
+    </details>
+  )}
+
+  <!-- Bhatta Bhashya (if available and showDetails) -->
+  {showDetails && verse.bhattaBhashya && (
+    <details class="collapsible mt-4 border-t pt-4">
+      <summary class="collapsible-header">
+        <span class="collapsible-icon">▶</span>
+        भट्टभास्करभाष्यम् (Bhatta Bhaskara Commentary)
+      </summary>
+      <div class="mt-3 prose prose-teal max-w-none text-sm whitespace-pre-wrap">
+        {verse.bhattaBhashya}
+      </div>
+    </details>
+  )}
+</article>

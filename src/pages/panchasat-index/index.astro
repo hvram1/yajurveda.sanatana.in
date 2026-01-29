@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import fs from 'fs';
+import path from 'path';
+
+const base = import.meta.env.BASE_URL;
+
+// Load panchasat index
+const indexPath = path.join(process.cwd(), 'src/data/panchasat-index.json');
+const panchasatIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+
+// Filter out special characters, keep only Devanagari letters
+const devanagariLetters = Object.keys(panchasatIndex).filter(letter => {
+  const code = letter.charCodeAt(0);
+  return code >= 0x0905 && code <= 0x0939; // अ to ह
+});
+
+// Group by category
+const vowels = ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ऋ', 'ए', 'ऐ', 'ओ', 'औ'].filter(v => devanagariLetters.includes(v));
+const consonants = devanagariLetters.filter(l => !vowels.includes(l));
+---
+
+<BaseLayout title="पञ्चशत् सूची - Panchasat Index">
+  <div class="page-with-sidebar">
+    <Sidebar />
+    <div class="main-content">
+      <div class="breadcrumb">
+        <a href={base}>मुख्यपृष्ठम्</a> &gt; पञ्चशत् सूची
+      </div>
+      
+      <h1 class="page-title">पञ्चशत् सूची (Panchasat Index)</h1>
+      <p class="page-subtitle">Browse all Panchasats by starting letter</p>
+      
+      <div class="stats-box">
+        <span>कुल अक्षराणि: {devanagariLetters.length}</span>
+        <span>कुल पञ्चशताः: {Object.values(panchasatIndex).reduce((sum, arr) => sum + arr.length, 0)}</span>
+      </div>
+      
+      <section class="letter-section">
+        <h2>स्वराः (Vowels)</h2>
+        <div class="letter-grid">
+          {vowels.map(letter => (
+            <a href={`${base}panchasat-index/${encodeURIComponent(letter)}`} class="letter-card">
+              <span class="letter">{letter}</span>
+              <span class="count">{panchasatIndex[letter]?.length || 0}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+      
+      <section class="letter-section">
+        <h2>व्यञ्जनानि (Consonants)</h2>
+        <div class="letter-grid">
+          {consonants.map(letter => (
+            <a href={`${base}panchasat-index/${encodeURIComponent(letter)}`} class="letter-card">
+              <span class="letter">{letter}</span>
+              <span class="count">{panchasatIndex[letter]?.length || 0}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-with-sidebar {
+    display: flex;
+    min-height: calc(100vh - 200px);
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 1rem 2rem;
+    max-width: 900px;
+  }
+  
+  .breadcrumb {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 1rem;
+  }
+  
+  .breadcrumb a {
+    color: var(--color-primary);
+  }
+  
+  .page-title {
+    font-family: 'AdiShilaVedic', serif;
+    font-size: 2rem;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .page-subtitle {
+    color: #666;
+    margin-bottom: 1.5rem;
+  }
+  
+  .stats-box {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    font-family: 'AdiShilaVedic', serif;
+  }
+  
+  .letter-section {
+    margin-bottom: 2rem;
+  }
+  
+  .letter-section h2 {
+    font-family: 'AdiShilaVedic', serif;
+    font-size: 1.3rem;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-accent);
+  }
+  
+  .letter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 1rem;
+    padding-bottom: 80px; /* Space for mobile menu button */
+  }
+  
+  .letter-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  
+  .letter-card:hover {
+    border-color: var(--color-primary);
+    background: linear-gradient(135deg, #f0f9ff 0%, #fff 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  .letter {
+    font-family: 'AdiShilaVedic', serif;
+    font-size: 2rem;
+    color: var(--color-primary);
+  }
+  
+  .count {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.25rem;
+  }
+  
+  @media (max-width: 768px) {
+    .page-with-sidebar {
+      flex-direction: column;
+    }
+    
+    .main-content {
+      padding: 1rem;
+    }
+    
+    .letter-grid {
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    }
+  }
+</style>
