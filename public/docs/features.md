@@ -1,4 +1,3 @@
-
 # यजुर्वेद (Yajurveda) - Feature Guide
 
 A comprehensive digital platform for exploring the Krishna Yajurveda Taittiriya Samhita with modern navigation, search, and audio capabilities.

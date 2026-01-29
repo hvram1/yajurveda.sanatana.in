@@ -2,7 +2,7 @@
 // For local development with base path
 // For Cloudflare R2: update AUDIO_BASE_URL to Worker URL
 const BASE_PATH = import.meta.env.BASE_URL || '/yajurveda.sanatana.in/';
-export const AUDIO_BASE_URL = 'https://yajurveda-audio.rigveda.workers.dev/MP3/';
+export const AUDIO_BASE_URL = 'https://yajurveda-audio.rigveda.workers.dev/audio/MP3';
 //export const AUDIO_BASE_URL = `${BASE_PATH}audio`;
 
 // Helper to construct audio URL for a Prasna

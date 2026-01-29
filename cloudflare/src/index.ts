@@ -42,7 +42,7 @@ export default {
       });
     }
     
-    // Validate path format (must be like audio/k1p1.mp3)
+    // Validate path format (must be like audio/MP3/KYS_K01_P01.mp3)
     if (!isValidAudioPath(key)) {
       return new Response('Bad Request: Invalid path format', { 
         status: 400,
@@ -50,9 +50,8 @@ export default {
       });
     }
     
-    // Map request path to R2 path
-    // Request: audio/k1p1.mp3 -> R2: MP3/k1p1.mp3
-    const r2Key = key.replace(/^audio\//, 'MP3/');
+    // R2 key is the same as the request path
+    const r2Key = key;
     
     // Fetch from R2
     const object = await env.AUDIO_BUCKET.get(r2Key);
@@ -85,8 +84,8 @@ export default {
 };
 
 function isValidAudioPath(path: string): boolean {
-  // Expected format: audio/k{kanda}p{prasna}.mp3 (e.g., audio/k1p1.mp3)
-  const pattern = /^audio\/k\d+p\d+\.mp3$/;
+  // Expected format: audio/MP3/KYS_K01_P01.mp3
+  const pattern = /^audio\/MP3\/KYS_K\d{2}_P\d{2}\.mp3$/;
   return pattern.test(path);
 }
 
