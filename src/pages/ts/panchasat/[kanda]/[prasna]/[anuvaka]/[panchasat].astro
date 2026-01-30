@@ -1,0 +1,107 @@
+---
+import VerseLayout from '../../../../../../layouts/VerseLayout.astro';
+import VerseCard from '../../../../../../components/VerseCard.astro';
+import AudioPlayer from '../../../../../../components/AudioPlayer.astro';
+import { loadPanchasat, getStructureIndex } from '../../../../../../lib/utils';
+import { getAudioUrl, getPanchasatMarker } from '../../../../../../lib/config';
+
+export function getStaticPaths() {
+  const paths: { params: { kanda: string; prasna: string; anuvaka: string; panchasat: string } }[] = [];
+  const structure = getStructureIndex();
+  
+  for (const kanda of structure.kandas) {
+    for (const prasna of kanda.prasnas) {
+      for (const anuvaka of prasna.anuvakas) {
+        for (let p = 1; p <= anuvaka.panchasatCount; p++) {
+          paths.push({
+            params: {
+              kanda: String(kanda.id),
+              prasna: String(prasna.id),
+              anuvaka: String(anuvaka.id),
+              panchasat: String(p)
+            }
+          });
+        }
+      }
+    }
+  }
+  
+  return paths;
+}
+
+const { kanda, prasna, anuvaka, panchasat } = Astro.params;
+const kandaNum = parseInt(kanda);
+const prasnaNum = parseInt(prasna);
+const anuvakaNum = parseInt(anuvaka);
+const panchasatNum = parseInt(panchasat);
+
+const verseData = await loadPanchasat(kandaNum, prasnaNum, anuvakaNum, panchasatNum);
+const base = import.meta.env.BASE_URL;
+const tsBase = `${base}ts/`;
+const audioUrl = getAudioUrl(kandaNum, prasnaNum, base);
+const marker = getPanchasatMarker(kandaNum, prasnaNum, anuvakaNum, panchasatNum);
+---
+
+<VerseLayout 
+  title={`TS ${kanda}.${prasna}.${anuvaka}.${panchasat}`}
+  currentKanda={kandaNum}
+  currentPrasna={prasnaNum}
+  currentAnuvaka={anuvakaNum}
+  currentPanchasat={panchasatNum}
+  basePath={tsBase}
+  activeText="ts"
+>
+  {verseData ? (
+    <>
+      <!-- Audio Player with markers if available -->
+      <section class="mb-8">
+        <AudioPlayer 
+          src={audioUrl} 
+          startTime={marker?.startTime}
+          endTime={marker?.endTime}
+          label={marker 
+            ? `Audio: अनुवाकः ${anuvakaNum}, पञ्चाशत् ${panchasatNum}` 
+            : `प्रश्नः ${prasnaNum} - Complete Audio Recording`
+          }
+        />
+        {!marker && (
+          <p class="text-xs text-gray-500 mt-2">
+            Note: Time markers for individual verses will be added soon. 
+            Currently playing the complete Prasna recording.
+          </p>
+        )}
+      </section>
+
+      <VerseCard verse={verseData} showDetails={true} basePath={tsBase} />
+
+      <!-- Classification -->
+      <aside class="mt-6 verse-card">
+        <h3 class="font-semibold text-primary mb-3">वर्गीकरणम्</h3>
+        <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div>
+            <dt class="text-gray-500">काण्डम्</dt>
+            <dd class="font-medium">{verseData.classification.kanda}</dd>
+          </div>
+          <div>
+            <dt class="text-gray-500">प्रश्नः</dt>
+            <dd class="font-medium">{verseData.classification.prasna}</dd>
+          </div>
+          <div>
+            <dt class="text-gray-500">अनुवाकः</dt>
+            <dd class="font-medium">{verseData.classification.anuvaka}</dd>
+          </div>
+          <div>
+            <dt class="text-gray-500">पञ्चाशत्</dt>
+            <dd class="font-medium">{verseData.classification.panchasat}</dd>
+          </div>
+        </dl>
+      </aside>
+    </>
+  ) : (
+    <div class="verse-card text-center">
+      <h1 class="text-2xl text-indigo">Verse not found</h1>
+      <p class="mt-2">The requested verse could not be located.</p>
+      <a href={base} class="nav-link inline-block mt-4 bg-teal-50">Return Home</a>
+    </div>
+  )}
+</VerseLayout>

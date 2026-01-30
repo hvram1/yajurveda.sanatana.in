@@ -1,0 +1,146 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import Sidebar from '../../../../components/Sidebar.astro';
+import AudioPlayer from '../../../../components/AudioPlayer.astro';
+import VerseCard from '../../../../components/VerseCard.astro';
+import { getStructureIndex, getPrasnaAnuvakas, KANDA_NAMES } from '../../../../lib/utils';
+import { getAudioUrl } from '../../../../lib/config';
+
+export function getStaticPaths() {
+  const structure = getStructureIndex();
+  const paths: { params: { kanda: string; prasna: string } }[] = [];
+  
+  for (const kanda of structure.kandas) {
+    for (const prasna of kanda.prasnas) {
+      paths.push({
+        params: { kanda: String(kanda.id), prasna: String(prasna.id) }
+      });
+    }
+  }
+  
+  return paths;
+}
+
+const { kanda, prasna } = Astro.params;
+const kandaNum = parseInt(kanda);
+const prasnaNum = parseInt(prasna);
+
+const structure = getStructureIndex();
+const kandaData = structure.kandas.find(k => k.id === kandaNum);
+const prasnaData = kandaData?.prasnas.find(p => p.id === prasnaNum);
+
+const anuvakas = getPrasnaAnuvakas(kandaNum, prasnaNum);
+const base = import.meta.env.BASE_URL;
+const audioUrl = getAudioUrl(kandaNum, prasnaNum, base);
+
+// Calculate navigation
+const maxPrasna = kandaData?.prasnas.length || 0;
+const prevPrasna = prasnaNum > 1 ? prasnaNum - 1 : null;
+const nextPrasna = prasnaNum < maxPrasna ? prasnaNum + 1 : null;
+---
+
+<BaseLayout title={`काण्डम् ${kandaNum} - प्रश्नः ${prasnaNum}`} activeText="ts">
+  <div class="page-with-sidebar">
+    <Sidebar currentKanda={kandaNum} currentPrasna={prasnaNum} basePath={`${base}ts/`} />
+    <div class="main-content">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb mb-6 text-sm">
+        <a href={base}>मुख्यपृष्ठम्</a>
+        <span class="mx-2">›</span>
+        <a href={`${base}ts/`}>संहिता</a>
+        <span class="mx-2">›</span>
+        <a href={`${base}ts/kanda/${kandaNum}`}>{KANDA_NAMES[kandaNum]}</a>
+        <span class="mx-2">›</span>
+        <span>प्रश्नः {prasnaNum}</span>
+      </nav>
+
+      <div class="text-center mb-8">
+        <h1 class="text-3xl text-indigo mb-2">
+          काण्डम् {kandaNum} - प्रश्नः {prasnaNum}
+        </h1>
+        <p class="text-gray-600">
+          Kanda {kandaNum}, Prasna {prasnaNum}
+        </p>
+        <p class="text-sm text-gray-500 mt-2">
+          {prasnaData?.anuvakas.length} अनुवाकाः | 
+          {prasnaData?.anuvakas.reduce((sum, a) => sum + a.panchasatCount, 0)} पञ्चाशत्
+        </p>
+      </div>
+
+      <!-- Audio Player for the entire Prasna -->
+      <section class="mb-8">
+        <AudioPlayer 
+          src={audioUrl} 
+          label={`प्रश्नः ${prasnaNum} - Complete Audio Recording`}
+        />
+      </section>
+
+      <div class="fancy mb-8">
+        <span>॥</span>
+      </div>
+
+      <!-- Anuvakas with their Panchasats -->
+      {anuvakas.map((anuvakaPanchasats, anuvakaIndex) => (
+        <section class="mb-12" id={`anuvaka-${anuvakaIndex + 1}`}>
+          <h2 class="text-xl text-indigo mb-4 sticky top-16 bg-white/95 py-2 z-10">
+            अनुवाकः {anuvakaIndex + 1}
+            <span class="text-sm text-gray-500 ml-2">
+              ({anuvakaPanchasats.length} पञ्चाशत्)
+            </span>
+          </h2>
+          
+          <div class="space-y-6">
+            {anuvakaPanchasats.map(verse => (
+              <VerseCard verse={verse} showDetails={false} basePath={`${base}ts/`} />
+            ))}
+          </div>
+        </section>
+      ))}
+
+      <!-- Navigation -->
+      <div class="flex justify-between mt-12 pt-4 border-t">
+        {prevPrasna ? (
+          <a href={`${base}ts/prasna/${kandaNum}/${prevPrasna}`} class="nav-link bg-teal-50 rounded">
+            ← प्रश्नः {prevPrasna}
+          </a>
+        ) : (
+          <a href={`${base}ts/kanda/${kandaNum}`} class="nav-link bg-teal-50 rounded">
+            ← काण्डम् {kandaNum}
+          </a>
+        )}
+        {nextPrasna ? (
+          <a href={`${base}ts/prasna/${kandaNum}/${nextPrasna}`} class="nav-link bg-teal-50 rounded">
+            प्रश्नः {nextPrasna} →
+          </a>
+        ) : kandaNum < 7 ? (
+          <a href={`${base}ts/kanda/${kandaNum + 1}`} class="nav-link bg-teal-50 rounded">
+            काण्डम् {kandaNum + 1} →
+          </a>
+        ) : <div />}
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-with-sidebar {
+    display: flex;
+    min-height: calc(100vh - 200px);
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 2rem;
+    max-width: 900px;
+  }
+  
+  @media (max-width: 768px) {
+    .page-with-sidebar {
+      flex-direction: column;
+    }
+    
+    .main-content {
+      padding: 1rem;
+    }
+  }
+</style>

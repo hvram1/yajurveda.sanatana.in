@@ -8,10 +8,11 @@ interface Props {
   currentPrasna?: number;
   currentAnuvaka?: number;
   currentPanchasat?: number;
+  basePath?: string;
 }
 
-const { currentKanda = 1, currentPrasna, currentAnuvaka, currentPanchasat } = Astro.props;
-const base = import.meta.env.BASE_URL;
+const { currentKanda = 1, currentPrasna, currentAnuvaka, currentPanchasat, basePath } = Astro.props;
+const base = basePath || import.meta.env.BASE_URL;
 
 const structure = getStructureIndex();
 const kandas = structure.kandas;

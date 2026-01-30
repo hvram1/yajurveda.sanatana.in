@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KandaCard from '../../components/KandaCard.astro';
+import { getStructureIndex } from '../../lib/utils';
+
+const structure = getStructureIndex();
+const base = import.meta.env.BASE_URL;
+
+const stats = {
+  kandas: structure.kandas.length,
+  prasnas: structure.kandas.reduce((sum, k) => sum + k.prasnas.length, 0),
+  anuvakas: structure.kandas.reduce((sum, k) => 
+    sum + k.prasnas.reduce((ps, p) => ps + p.anuvakas.length, 0), 0),
+  panchasats: structure.kandas.reduce((sum, k) => 
+    sum + k.prasnas.reduce((ps, p) => 
+      ps + p.anuvakas.reduce((as, a) => as + a.panchasatCount, 0), 0), 0)
+};
+---
+
+<BaseLayout title="तैत्तिरीय संहिता" activeText="ts">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl md:text-4xl text-indigo mb-4">तैत्तिरीय संहिता</h1>
+    <p class="text-lg text-gray-600">Taittiriya Samhita</p>
+  </div>
+
+  <div class="fancy mb-8">
+    <span>॥</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+    <div class="verse-card text-center">
+      <div class="text-3xl font-bold text-primary">{stats.kandas}</div>
+      <div class="text-sm text-gray-600">काण्डानि</div>
+      <div class="text-xs text-gray-500">Kandas</div>
+    </div>
+    <div class="verse-card text-center">
+      <div class="text-3xl font-bold text-primary">{stats.prasnas}</div>
+      <div class="text-sm text-gray-600">प्रश्नाः</div>
+      <div class="text-xs text-gray-500">Prasnas</div>
+    </div>
+    <div class="verse-card text-center">
+      <div class="text-3xl font-bold text-primary">{stats.anuvakas}</div>
+      <div class="text-sm text-gray-600">अनुवाकाः</div>
+      <div class="text-xs text-gray-500">Anuvakas</div>
+    </div>
+    <div class="verse-card text-center">
+      <div class="text-3xl font-bold text-primary">{stats.panchasats}</div>
+      <div class="text-sm text-gray-600">पञ्चाशत्</div>
+      <div class="text-xs text-gray-500">Panchasats</div>
+    </div>
+  </div>
+
+  <!-- Kanda Cards -->
+  <section class="mb-12">
+    <h2 class="text-2xl text-indigo mb-6 text-center">काण्डानि (Kandas)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {structure.kandas.map(kanda => (
+        <KandaCard 
+          kanda={kanda.id} 
+          prasnaCount={kanda.prasnas.length}
+          basePath={`${base}ts/`}
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- About section -->
+  <section class="verse-card mt-12">
+    <h2 class="text-xl text-indigo mb-4">संहिता विषये</h2>
+    <div class="text-gray-700 space-y-4">
+      <p>
+        तैत्तिरीय संहिता कृष्ण यजुर्वेदस्य प्रमुखा संहिता अस्ति। 
+        अस्मिन् मन्त्राः तेषां प्रयोगविधयश्च सन्ति।
+      </p>
+      <p>
+        The Taittiriya Samhita is the primary collection of mantras in the Krishna Yajurveda.
+        It contains both mantras and their ritual applications, organized into 7 Kandas (books).
+      </p>
+    </div>
+  </section>
+</BaseLayout>

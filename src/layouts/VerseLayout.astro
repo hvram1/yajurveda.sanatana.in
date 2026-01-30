@@ -8,25 +8,35 @@ interface Props {
   currentPrasna: number;
   currentAnuvaka: number;
   currentPanchasat: number;
+  basePath?: string;
+  activeText?: 'ts' | 'tb' | 'ta';
 }
 
-const { title, currentKanda, currentPrasna, currentAnuvaka, currentPanchasat } = Astro.props;
-const base = import.meta.env.BASE_URL;
+const { title, currentKanda, currentPrasna, currentAnuvaka, currentPanchasat, basePath, activeText } = Astro.props;
+const base = basePath || import.meta.env.BASE_URL;
+const rootBase = import.meta.env.BASE_URL;
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} activeText={activeText}>
   <div class="page-with-sidebar">
     <Sidebar 
       currentKanda={currentKanda} 
       currentPrasna={currentPrasna} 
       currentAnuvaka={currentAnuvaka}
       currentPanchasat={currentPanchasat}
+      basePath={base}
     />
     <div class="main-content">
       <!-- Breadcrumb -->
       <nav class="breadcrumb mb-6 text-sm">
-        <a href={base}>मुख्यपृष्ठम्</a>
+        <a href={rootBase}>मुख्यपृष्ठम्</a>
         <span class="mx-2">›</span>
+        {activeText === 'ts' && (
+          <>
+            <a href={`${rootBase}ts/`}>संहिता</a>
+            <span class="mx-2">›</span>
+          </>
+        )}
         <a href={`${base}kanda/${currentKanda}`}>काण्डम् {currentKanda}</a>
         <span class="mx-2">›</span>
         <a href={`${base}prasna/${currentKanda}/${currentPrasna}`}>प्रश्नः {currentPrasna}</a>

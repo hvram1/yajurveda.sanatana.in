@@ -4,10 +4,11 @@ import { KANDA_NAMES, KANDA_NAMES_EN } from '../lib/utils';
 interface Props {
   kanda: number;
   prasnaCount: number;
+  basePath?: string;
 }
 
-const { kanda, prasnaCount } = Astro.props;
-const base = import.meta.env.BASE_URL;
+const { kanda, prasnaCount, basePath } = Astro.props;
+const base = basePath || import.meta.env.BASE_URL;
 ---
 
 <a 

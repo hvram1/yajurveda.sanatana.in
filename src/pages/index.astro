@@ -1,84 +1,117 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import KandaCard from '../components/KandaCard.astro';
-import { getStructureIndex, KANDA_NAMES } from '../lib/utils';
+import { getStructureIndex } from '../lib/utils';
 
+const base = import.meta.env.BASE_URL;
 const structure = getStructureIndex();
+
+// Calculate stats
+const tsStats = {
+  kandas: structure.kandas.length,
+  prasnas: structure.kandas.reduce((sum, k) => sum + k.prasnas.length, 0),
+  anuvakas: structure.kandas.reduce((sum, k) => 
+    sum + k.prasnas.reduce((ps, p) => ps + p.anuvakas.length, 0), 0),
+  panchasats: structure.kandas.reduce((sum, k) => 
+    sum + k.prasnas.reduce((ps, p) => 
+      ps + p.anuvakas.reduce((as, a) => as + a.panchasatCount, 0), 0), 0)
+};
+
+const texts = [
+  {
+    id: 'ts',
+    name: 'तैत्तिरीय संहिता',
+    nameEn: 'Taittiriya Samhita',
+    description: 'The primary text containing mantras and their ritual applications',
+    stats: `${tsStats.kandas} काण्डानि • ${tsStats.prasnas} प्रश्नाः • ${tsStats.anuvakas} अनुवाकाः • ${tsStats.panchasats} पञ्चाशत्`,
+    path: `${base}ts/`,
+    color: 'bg-gradient-to-br from-teal-600 to-teal-800'
+  },
+  {
+    id: 'tb',
+    name: 'तैत्तिरीय ब्राह्मण',
+    nameEn: 'Taittiriya Brahmana',
+    description: 'Explanatory text elaborating on the rituals and mantras',
+    stats: '3 प्रश्नाः • 24 प्रपाठकाः • 1748 पञ्चाशत्',
+    path: `${base}tb/`,
+    color: 'bg-gradient-to-br from-amber-600 to-amber-800'
+  },
+  {
+    id: 'ta',
+    name: 'तैत्तिरीय आरण्यक',
+    nameEn: 'Taittiriya Aranyaka',
+    description: 'Forest texts containing philosophical and meditative teachings',
+    stats: '8 प्रपाठकाः • 574 पञ्चाशत्',
+    path: `${base}ta/`,
+    color: 'bg-gradient-to-br from-purple-600 to-purple-800'
+  }
+];
 ---
 
 <BaseLayout title="मुख्यपृष्ठम्">
   <div class="text-center mb-12">
     <h1 class="text-3xl md:text-5xl text-indigo mb-4">कृष्ण यजुर्वेद</h1>
-    <p class="text-lg text-gray-600">तैत्तिरीय संहिता</p>
-    <p class="text-base text-gray-500 mt-2">Krishna Yajurveda - Taittiriya Samhita</p>
+    <p class="text-lg text-gray-600">तैत्तिरीय शाखा</p>
+    <p class="text-base text-gray-500 mt-2">Krishna Yajurveda - Taittiriya Shakha</p>
   </div>
 
   <div class="fancy mb-8">
     <span>॥</span>
   </div>
 
-  <!-- Stats -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-    <div class="verse-card text-center">
-      <div class="text-3xl font-bold text-primary">{structure.kandas.length}</div>
-      <div class="text-sm text-gray-600">काण्डानि</div>
-      <div class="text-xs text-gray-500">Kandas</div>
-    </div>
-    <div class="verse-card text-center">
-      <div class="text-3xl font-bold text-primary">
-        {structure.kandas.reduce((sum, k) => sum + k.prasnas.length, 0)}
-      </div>
-      <div class="text-sm text-gray-600">प्रश्नाः</div>
-      <div class="text-xs text-gray-500">Prasnas</div>
-    </div>
-    <div class="verse-card text-center">
-      <div class="text-3xl font-bold text-primary">
-        {structure.kandas.reduce((sum, k) => 
-          sum + k.prasnas.reduce((ps, p) => ps + p.anuvakas.length, 0), 0)}
-      </div>
-      <div class="text-sm text-gray-600">अनुवाकाः</div>
-      <div class="text-xs text-gray-500">Anuvakas</div>
-    </div>
-    <div class="verse-card text-center">
-      <div class="text-3xl font-bold text-primary">
-        {structure.kandas.reduce((sum, k) => 
-          sum + k.prasnas.reduce((ps, p) => 
-            ps + p.anuvakas.reduce((as, a) => as + a.panchasatCount, 0), 0), 0)}
-      </div>
-      <div class="text-sm text-gray-600">पञ्चाशत्</div>
-      <div class="text-xs text-gray-500">Verses</div>
-    </div>
-  </div>
-
-  <!-- Kanda Cards -->
+  <!-- Three Texts Grid -->
   <section class="mb-12">
-    <h2 class="text-2xl text-indigo mb-6 text-center">काण्डानि (Kandas)</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {structure.kandas.map(kanda => (
-        <KandaCard 
-          kanda={kanda.id} 
-          prasnaCount={kanda.prasnas.length} 
-        />
+    <h2 class="text-2xl text-indigo mb-6 text-center">ग्रन्थाः (Texts)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {texts.map(text => (
+        <a href={text.path} class="text-card group">
+          <div class={`${text.color} rounded-t-lg p-6 text-white text-center`}>
+            <h3 class="text-xl font-bold mb-1">{text.name}</h3>
+            <p class="text-sm opacity-90">{text.nameEn}</p>
+          </div>
+          <div class="p-4 bg-white rounded-b-lg border-x border-b border-gray-200">
+            <p class="text-gray-600 text-sm mb-3">{text.description}</p>
+            <p class="text-xs text-gray-500">{text.stats}</p>
+            <div class="mt-3 text-primary text-sm group-hover:underline">
+              अवलोकनम् → 
+            </div>
+          </div>
+        </a>
       ))}
     </div>
   </section>
 
   <!-- About section -->
   <section class="verse-card mt-12">
-    <h2 class="text-xl text-indigo mb-4">तैत्तिरीय संहिता विषये</h2>
+    <h2 class="text-xl text-indigo mb-4">तैत्तिरीय शाखा विषये</h2>
     <div class="text-gray-700 space-y-4">
       <p>
-        तैत्तिरीय संहिता कृष्ण यजुर्वेदस्य प्रमुखा शाखा अस्ति। 
-        अस्य नाम तित्तिरि नामकात् ऋषेः प्राप्तम्।
+        तैत्तिरीय शाखा कृष्ण यजुर्वेदस्य प्रमुखा शाखा अस्ति। 
+        अस्याः तिस्रः मुख्याः रचनाः सन्ति - संहिता, ब्राह्मणम्, आरण्यकं च।
       </p>
       <p>
-        The Taittiriya Samhita is a major recension of the Krishna (Black) Yajurveda. 
-        It is named after the sage Tittiri, who was a student of Yaska.
+        The Taittiriya Shakha is a major recension of the Krishna (Black) Yajurveda. 
+        It comprises three main texts: the Samhita (mantras), Brahmana (ritual explanations), 
+        and Aranyaka (forest/philosophical texts).
       </p>
       <p>
-        This text is organized into 7 Kandas (books), 44 Prasnas (chapters), 
-        651 Anuvakas (sections), and 2198 Panchasats (verse groups).
+        <strong>संहिता (Samhita):</strong> Contains the mantras organized into 7 Kandas with ritual applications.<br/>
+        <strong>ब्राह्मण (Brahmana):</strong> Provides detailed explanations of rituals and their meanings.<br/>
+        <strong>आरण्यक (Aranyaka):</strong> Contains meditative and philosophical teachings, including the famous Upanishads.
       </p>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .text-card {
+    display: block;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .text-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+</style>

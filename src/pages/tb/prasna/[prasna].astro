@@ -1,0 +1,116 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SidebarTB from '../../../components/SidebarTB.astro';
+import fs from 'fs';
+import path from 'path';
+
+export function getStaticPaths() {
+  const metadataPath = path.join(process.cwd(), 'src/data/tb/metadata.json');
+  const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
+  
+  return metadata.prasnas.map(p => ({
+    params: { prasna: String(p.prasna) }
+  }));
+}
+
+const { prasna } = Astro.params;
+const prasnaNum = parseInt(prasna);
+
+const base = import.meta.env.BASE_URL;
+const tbBase = `${base}tb/`;
+
+// Load metadata
+const metadataPath = path.join(process.cwd(), 'src/data/tb/metadata.json');
+const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
+const prasnaData = metadata.prasnas.find(p => p.prasna === prasnaNum);
+---
+
+<BaseLayout title={`TB प्रश्नः ${prasnaNum}`} activeText="tb">
+  <div class="page-with-sidebar">
+    <SidebarTB currentPrasna={prasnaNum} />
+    <div class="main-content">
+      <nav class="breadcrumb mb-6 text-sm">
+        <a href={base}>मुख्यपृष्ठम्</a>
+        <span class="mx-2">›</span>
+        <a href={tbBase}>ब्राह्मण</a>
+        <span class="mx-2">›</span>
+        <span>प्रश्नः {prasnaNum}</span>
+      </nav>
+
+      <div class="text-center mb-8">
+        <div class="prasna-circle mx-auto mb-4">
+          {prasnaNum}
+        </div>
+        <h1 class="text-3xl text-indigo mb-2">प्रश्नः {prasnaNum}</h1>
+        <p class="text-gray-600">Prasna {prasnaNum}</p>
+        <p class="text-sm text-gray-500 mt-2">
+          {prasnaData?.prapatakas.length} प्रपाठकाः
+        </p>
+      </div>
+
+      <div class="fancy mb-8"><span>॥</span></div>
+
+      <section>
+        <h2 class="text-xl text-indigo mb-6">प्रपाठकाः (Prapatakas)</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {prasnaData?.prapatakas.map(prapaataka => {
+            const anuvCount = prapaataka.anuvakas.length;
+            const panchCount = prapaataka.anuvakas.reduce((sum, a) => sum + a.panchasats, 0);
+            
+            return (
+              <a 
+                href={`${tbBase}prapaataka/${prasnaNum}/${prapaataka.prapaataka}`}
+                class="verse-card text-center hover:shadow-lg transition-all"
+              >
+                <div class="text-2xl font-bold text-amber-600 mb-1">{prapaataka.prapaataka}</div>
+                <div class="text-xs text-gray-500">{anuvCount} अनुवाकाः</div>
+                <div class="text-xs text-gray-400 mt-1">{panchCount} पञ्चाशत्</div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+
+      <div class="flex justify-between mt-12 pt-4 border-t">
+        {prasnaNum > 1 ? (
+          <a href={`${tbBase}prasna/${prasnaNum - 1}`} class="nav-link bg-amber-50 rounded">← प्रश्नः {prasnaNum - 1}</a>
+        ) : (
+          <a href={tbBase} class="nav-link bg-amber-50 rounded">← ब्राह्मण</a>
+        )}
+        {prasnaNum < 3 ? (
+          <a href={`${tbBase}prasna/${prasnaNum + 1}`} class="nav-link bg-amber-50 rounded">प्रश्नः {prasnaNum + 1} →</a>
+        ) : (
+          <a href={tbBase} class="nav-link bg-amber-50 rounded">ब्राह्मण →</a>
+        )}
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-with-sidebar {
+    display: flex;
+    min-height: calc(100vh - 200px);
+  }
+  .main-content {
+    flex: 1;
+    padding: 2rem;
+    max-width: 900px;
+  }
+  .prasna-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+  }
+  @media (max-width: 768px) {
+    .page-with-sidebar { flex-direction: column; }
+    .main-content { padding: 1rem; }
+  }
+</style>

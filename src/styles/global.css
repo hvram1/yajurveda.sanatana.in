@@ -377,6 +377,145 @@ details[open] .collapsible-icon {
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
+/* Text Selector Dropdown */
+.text-selector-wrapper {
+  position: relative;
+}
+
+.text-selector-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'AdiShilaVedic', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(13, 110, 110, 0.3);
+}
+
+.text-selector-btn:hover {
+  box-shadow: 0 4px 12px rgba(13, 110, 110, 0.4);
+  transform: translateY(-1px);
+}
+
+.text-selector-btn.open {
+  border-radius: 8px 8px 0 0;
+}
+
+.selector-label {
+  min-width: 60px;
+}
+
+.selector-arrow {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s;
+}
+
+.text-selector-btn.open .selector-arrow {
+  transform: rotate(180deg);
+}
+
+.text-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  min-width: 220px;
+  background: white;
+  border-radius: 0 8px 8px 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  border: 1px solid #e5e7eb;
+  border-top: none;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.text-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: #374151;
+  transition: all 0.15s;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.text-option:last-child {
+  border-bottom: none;
+}
+
+.text-option:hover {
+  background: #f9fafb;
+}
+
+.text-option.active {
+  background: linear-gradient(90deg, rgba(13, 110, 110, 0.08) 0%, transparent 100%);
+}
+
+.option-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.option-badge.ts-badge {
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+  color: white;
+}
+
+.option-badge.tb-badge {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  color: white;
+}
+
+.option-badge.ta-badge {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+  color: white;
+}
+
+.option-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.option-name {
+  font-family: 'AdiShilaVedic', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.option-name-en {
+  font-family: 'Raleway', sans-serif;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.option-check {
+  color: var(--color-primary);
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.hidden {
+  display: none !important;
+}
+
 /* Prasna/Anuvaka links */
 .prasna-link, .anuvaka-link {
   padding: 0.5rem 0.75rem;

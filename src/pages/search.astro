@@ -4,122 +4,719 @@ const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="अन्वेषणम् - Search">
-  <div class="max-w-3xl mx-auto">
-    <h1 class="text-3xl text-indigo mb-6 text-center">अन्वेषणम्</h1>
-    <p class="text-center text-gray-600 mb-8">Search the Taittiriya Samhita</p>
+  <meta name="base-url" content={base} slot="head" />
+  <div class="search-container max-w-3xl mx-auto">
+    <h1 class="text-3xl text-primary mb-4 text-center">अन्वेषणम्</h1>
+    <p class="text-center text-gray-600 mb-6">Search in Taittiriya Samhita, Brahmana & Aranyaka</p>
 
     <div class="verse-card">
-      <input 
-        type="text" 
-        id="search-input"
-        placeholder="Search in Sanskrit or reference (e.g., 1.1.1.1)..."
-        class="w-full px-4 py-3 border border-teal-200 rounded-lg focus:outline-none focus:border-primary text-lg"
-      />
+      <div class="search-box">
+        <input 
+          type="text" 
+          id="search-input"
+          placeholder="Search in Sanskrit... (e.g., अग्नि, इन्द्र, प्रजापति)"
+          class="search-input"
+          autofocus
+        />
+        <button id="search-btn" class="search-btn">Search</button>
+      </div>
+      
+      <!-- Phonetic Mode Toggle -->
+      <div class="search-options">
+        <label class="option-label">
+          <input type="checkbox" id="phonetic-mode" checked />
+          <span>Phonetic matching (matches similar sounds: द/ध, त/थ, इ/ई, स/श/ष, etc.)</span>
+        </label>
+      </div>
+
+      <!-- Highlight Legend -->
+      <div class="highlight-legend">
+        <span class="legend-item"><span class="legend-color exact"></span> Exact match</span>
+        <span class="legend-item"><span class="legend-color phonetic"></span> Phonetic match</span>
+      </div>
+
+      <!-- Text Filter -->
+      <div class="text-filters">
+        <span class="filter-title">Filter by text:</span>
+        <label class="filter-label">
+          <input type="checkbox" id="filter-ts" value="ts" checked class="filter-checkbox" />
+          <span class="filter-tag ts-tag">संहिता (TS)</span>
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" id="filter-tb" value="tb" checked class="filter-checkbox" />
+          <span class="filter-tag tb-tag">ब्राह्मण (TB)</span>
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" id="filter-ta" value="ta" checked class="filter-checkbox" />
+          <span class="filter-tag ta-tag">आरण्यक (TA)</span>
+        </label>
+      </div>
     </div>
 
-    <div id="search-results" class="mt-8 space-y-4">
+    <div id="search-status" class="search-status"></div>
+    
+    <div id="did-you-mean" class="did-you-mean"></div>
+
+    <div id="search-results" class="mt-6 space-y-3">
       <!-- Results will be inserted here -->
     </div>
 
     <div id="loading" class="hidden text-center text-gray-500 mt-8">
-      Searching...
-    </div>
-
-    <div id="no-results" class="hidden text-center text-gray-500 mt-8">
-      No results found. Try a different search term.
+      Loading search index...
     </div>
   </div>
 </BaseLayout>
 
-<script define:vars={{ base }}>
-  let searchData = null;
-  let fuse = null;
+<script>
+  import Fuse from 'fuse.js';
+  
+  // Get base URL
+  const base = document.querySelector('meta[name="base-url"]')?.getAttribute('content') || '/';
 
+  // Phonetic normalization - strip Vedic svara marks
+  const SVARA_MARKS = /[॒॑᳚]/g;
+  
+  // Map aspirates to unaspirates, long vowels to short, etc.
+  const PHONETIC_MAP: [RegExp, string][] = [
+    // Aspirates -> Unaspirates
+    [/ख/g, 'क'], [/घ/g, 'ग'], [/छ/g, 'च'], [/झ/g, 'ज'],
+    [/ठ/g, 'ट'], [/ढ/g, 'ड'], [/थ/g, 'त'], [/ध/g, 'द'],
+    [/फ/g, 'प'], [/भ/g, 'ब'],
+    // Sibilants -> स
+    [/श/g, 'स'], [/ष/g, 'स'],
+    // Nasals -> न
+    [/ण/g, 'न'], [/ङ/g, 'न'], [/ञ/g, 'न'],
+    // ळ -> ल
+    [/ळ/g, 'ल'],
+    // Long vowels -> Short
+    [/आ/g, 'अ'], [/ई/g, 'इ'], [/ऊ/g, 'उ'], [/ऐ/g, 'ए'], [/औ/g, 'ओ'], [/ॠ/g, 'ऋ'],
+    // Remove anusvara, chandrabindu, visarga, avagraha
+    [/ं/g, 'म'], [/ँ/g, ''], [/ः/g, ''], [/ऽ/g, ''],
+  ];
+
+  function stripSvara(text: string): string {
+    return text.replace(SVARA_MARKS, '');
+  }
+
+  function phoneticKey(text: string): string {
+    let result = stripSvara(text);
+    for (const [pattern, replacement] of PHONETIC_MAP) {
+      result = result.replace(pattern, replacement);
+    }
+    return result.replace(/[\s।॥,\.\-]+/g, ' ').trim().toLowerCase();
+  }
+
+  // Reverse phonetic map for "Did You Mean" suggestions
+  const PHONETIC_SUGGESTIONS: { [key: string]: string[] } = {
+    'क': ['क', 'ख'], 'ग': ['ग', 'घ'], 'च': ['च', 'छ'], 'ज': ['ज', 'झ'],
+    'ट': ['ट', 'ठ'], 'ड': ['ड', 'ढ'], 'त': ['त', 'थ'], 'द': ['द', 'ध'],
+    'प': ['प', 'फ'], 'ब': ['ब', 'भ'],
+    'स': ['स', 'श', 'ष'],
+    'न': ['न', 'ण', 'ङ', 'ञ'],
+    'ल': ['ल', 'ळ'],
+    'अ': ['अ', 'आ'], 'इ': ['इ', 'ई'], 'उ': ['उ', 'ऊ'], 'ए': ['ए', 'ऐ'], 'ओ': ['ओ', 'औ'],
+  };
+
+  // Phonetic equivalents for highlighting
+  const PHONETIC_EQUIVALENTS: { [key: string]: string[] } = {
+    'क': ['ख'], 'ख': ['क'],
+    'ग': ['घ'], 'घ': ['ग'],
+    'च': ['छ'], 'छ': ['च'],
+    'ज': ['झ'], 'झ': ['ज'],
+    'ट': ['ठ'], 'ठ': ['ट'],
+    'ड': ['ढ'], 'ढ': ['ड'],
+    'त': ['थ'], 'थ': ['त'],
+    'द': ['ध'], 'ध': ['द'],
+    'प': ['फ'], 'फ': ['प'],
+    'ब': ['भ'], 'भ': ['ब'],
+    'स': ['श', 'ष'], 'श': ['स', 'ष'], 'ष': ['स', 'श'],
+    'न': ['ण', 'ङ', 'ञ'], 'ण': ['न'], 'ङ': ['न'], 'ञ': ['न'],
+    'ल': ['ळ'], 'ळ': ['ल'],
+    'अ': ['आ'], 'आ': ['अ'],
+    'इ': ['ई'], 'ई': ['इ'],
+    'उ': ['ऊ'], 'ऊ': ['उ'],
+    'ए': ['ऐ'], 'ऐ': ['ए'],
+    'ओ': ['औ'], 'औ': ['ओ'],
+  };
+
+  interface SearchItem {
+    id: string;
+    samhita: string;
+    pada?: string;
+    text: 'ts' | 'tb' | 'ta';
+    url?: string;
+    classification: {
+      kanda?: number;
+      prasna: number;
+      anuvaka: number;
+      panchasat: number;
+      prapaataka?: number;
+    };
+    phonetic?: string; // Will be added during indexing
+  }
+
+  let searchData: SearchItem[] = [];
+  let fuse: Fuse<SearchItem> | null = null;
+  let fusePhonetic: Fuse<SearchItem> | null = null;
+
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const searchBtn = document.getElementById('search-btn') as HTMLButtonElement;
+  const searchStatus = document.getElementById('search-status') as HTMLDivElement;
+  const didYouMean = document.getElementById('did-you-mean') as HTMLDivElement;
+  const searchResults = document.getElementById('search-results') as HTMLDivElement;
+  const phoneticMode = document.getElementById('phonetic-mode') as HTMLInputElement;
+  const loading = document.getElementById('loading') as HTMLDivElement;
+
+  // Load search index
   async function loadSearchIndex() {
-    if (searchData) return;
+    searchStatus.textContent = 'Loading search index...';
+    loading.classList.remove('hidden');
     
     try {
       const response = await fetch(`${base}search-index.json`);
       searchData = await response.json();
       
-      // Initialize Fuse.js
-      const Fuse = (await import('https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.mjs')).default;
+      // Add phonetic keys to search data
+      searchData.forEach(item => {
+        item.phonetic = phoneticKey(item.samhita + ' ' + (item.pada || ''));
+      });
+      
+      // Initialize Fuse for text search
       fuse = new Fuse(searchData, {
         keys: ['samhita', 'pada', 'id'],
         threshold: 0.3,
         includeScore: true,
+        ignoreLocation: true,
         minMatchCharLength: 2
       });
-    } catch (error) {
-      console.error('Failed to load search index:', error);
+
+      // Initialize Fuse for phonetic search
+      fusePhonetic = new Fuse(searchData, {
+        keys: ['phonetic'],
+        threshold: 0.2,
+        includeScore: true,
+        ignoreLocation: true,
+        minMatchCharLength: 2
+      });
+
+      loading.classList.add('hidden');
+      searchStatus.textContent = `Ready. ${searchData.length.toLocaleString()} passages indexed.`;
+    } catch (err) {
+      loading.classList.add('hidden');
+      searchStatus.textContent = 'Error loading search index.';
+      console.error(err);
     }
   }
 
-  function renderResults(results) {
-    const container = document.getElementById('search-results');
-    const noResults = document.getElementById('no-results');
+  function getActiveFilters(): string[] {
+    const filters: string[] = [];
+    if ((document.getElementById('filter-ts') as HTMLInputElement).checked) filters.push('ts');
+    if ((document.getElementById('filter-tb') as HTMLInputElement).checked) filters.push('tb');
+    if ((document.getElementById('filter-ta') as HTMLInputElement).checked) filters.push('ta');
+    return filters;
+  }
+
+  function getTextLabel(text: string) {
+    switch(text) {
+      case 'ts': return { name: 'संहिता', color: 'ts-badge' };
+      case 'tb': return { name: 'ब्राह्मण', color: 'tb-badge' };
+      case 'ta': return { name: 'आरण्यक', color: 'ta-badge' };
+      default: return { name: 'TS', color: 'ts-badge' };
+    }
+  }
+
+  function getResultUrl(item: SearchItem): string {
+    if (item.url) {
+      return base + item.url.substring(1);
+    }
+    const { kanda, prasna, anuvaka, panchasat } = item.classification;
+    return `${base}ts/panchasat/${kanda}/${prasna}/${anuvaka}/${panchasat}`;
+  }
+
+  function getPhoneticVariants(query: string): string[] {
+    const variants: string[] = [];
+    const chars = query.split('');
     
-    if (results.length === 0) {
-      container.innerHTML = '';
-      noResults.classList.remove('hidden');
+    for (let i = 0; i < chars.length; i++) {
+      const char = chars[i];
+      const equivalents = PHONETIC_EQUIVALENTS[char];
+      if (equivalents) {
+        for (const eq of equivalents) {
+          const variant = [...chars];
+          variant[i] = eq;
+          variants.push(variant.join(''));
+        }
+      }
+    }
+    return variants;
+  }
+
+  function highlightWithColors(text: string, query: string): string {
+    if (!query) return text;
+    
+    let result = text;
+    
+    // First, highlight exact matches (yellow/gold)
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const exactRegex = new RegExp(`(${escapedQuery})`, 'gi');
+    result = result.replace(exactRegex, '<mark class="exact-match">$1</mark>');
+    
+    // Then, highlight phonetic variants (light blue)
+    if (phoneticMode.checked) {
+      const variants = getPhoneticVariants(query);
+      for (const variant of variants) {
+        const escapedVariant = variant.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const variantRegex = new RegExp(`(${escapedVariant})`, 'gi');
+        result = result.replace(variantRegex, (match, p1, offset, str) => {
+          // Check if already inside a mark tag
+          const before = str.substring(0, offset);
+          const openTags = (before.match(/<mark/g) || []).length;
+          const closeTags = (before.match(/<\/mark>/g) || []).length;
+          if (openTags > closeTags) {
+            return match;
+          }
+          return `<mark class="phonetic-match">${match}</mark>`;
+        });
+      }
+    }
+    
+    return result;
+  }
+
+  function showDidYouMean(query: string) {
+    if (!phoneticMode.checked) {
+      didYouMean.innerHTML = '';
       return;
     }
+
+    const alternatives = new Set<string>();
+    const chars = query.split('');
     
-    noResults.classList.add('hidden');
-    container.innerHTML = results.slice(0, 50).map(result => {
-      const item = result.item;
-      const [k, p, a, ps] = [
-        item.classification.kanda,
-        item.classification.prasna,
-        item.classification.anuvaka,
-        item.classification.panchasat
-      ];
+    for (let i = 0; i < chars.length; i++) {
+      const char = chars[i];
+      for (const [baseChar, variants] of Object.entries(PHONETIC_SUGGESTIONS)) {
+        if (variants.includes(char)) {
+          for (const variant of variants) {
+            if (variant !== char) {
+              const alt = [...chars];
+              alt[i] = variant;
+              alternatives.add(alt.join(''));
+            }
+          }
+        }
+      }
+    }
+
+    if (alternatives.size > 0 && alternatives.size <= 12) {
+      const links = Array.from(alternatives).map(alt => 
+        `<a href="#" class="suggestion-link" data-query="${alt}">${alt}</a>`
+      ).join(', ');
+      didYouMean.innerHTML = `<span class="did-you-mean-label">Also searching for:</span> ${links}`;
       
-      return `
-        <a href="${base}panchasat/${k}/${p}/${a}/${ps}" class="block verse-card hover:shadow-lg transition-all">
-          <div class="font-semibold text-primary mb-2">${item.id}</div>
-          <div class="text-gray-700 text-sm line-clamp-2">${item.samhita.substring(0, 200)}...</div>
-        </a>
-      `;
-    }).join('');
+      didYouMean.querySelectorAll('.suggestion-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          searchInput.value = (e.target as HTMLAnchorElement).dataset.query || '';
+          performSearch();
+        });
+      });
+    } else {
+      didYouMean.innerHTML = '';
+    }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('search-input');
-    const loading = document.getElementById('loading');
-    let debounceTimer;
+  function renderResult(item: SearchItem, query: string): string {
+    const textInfo = getTextLabel(item.text || 'ts');
+    const url = getResultUrl(item);
+    const displayText = item.samhita.substring(0, 250) + (item.samhita.length > 250 ? '...' : '');
+    
+    return `
+      <a href="${url}" class="result-item ${item.text || 'ts'}-border">
+        <div class="result-header">
+          <span class="result-badge ${textInfo.color}">${textInfo.name}</span>
+          <span class="result-id">${item.id}</span>
+          <span class="result-arrow">→</span>
+        </div>
+        <div class="result-text">${highlightWithColors(displayText, query)}</div>
+      </a>
+    `;
+  }
 
-    input.addEventListener('input', async (e) => {
-      const query = e.target.value.trim();
-      
-      if (query.length < 2) {
-        document.getElementById('search-results').innerHTML = '';
-        document.getElementById('no-results').classList.add('hidden');
-        return;
+  function performSearch() {
+    const query = searchInput.value.trim();
+    if (!query || query.length < 2 || !fuse || !fusePhonetic) {
+      searchResults.innerHTML = '';
+      didYouMean.innerHTML = '';
+      if (query.length > 0 && query.length < 2) {
+        searchStatus.textContent = 'Please enter at least 2 characters';
       }
+      return;
+    }
 
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(async () => {
-        loading.classList.remove('hidden');
-        
-        await loadSearchIndex();
-        
-        if (fuse) {
-          const results = fuse.search(query);
-          renderResults(results);
+    const filters = getActiveFilters();
+    const usePhonetic = phoneticMode.checked;
+    const startTime = performance.now();
+
+    let results: Fuse.FuseResult<SearchItem>[];
+    const MAX_RESULTS = 50;
+    
+    if (usePhonetic) {
+      const phoneticQuery = phoneticKey(query);
+      const phoneticResults = fusePhonetic.search(phoneticQuery, { limit: 60 });
+      const textResults = fuse.search(query, { limit: 40 });
+      
+      // Combine and dedupe, prioritizing exact matches
+      const seen = new Set<string>();
+      const combined: Fuse.FuseResult<SearchItem>[] = [];
+      
+      for (const r of textResults) {
+        if (!seen.has(r.item.id)) {
+          seen.add(r.item.id);
+          combined.push(r);
         }
-        
-        loading.classList.add('hidden');
-      }, 300);
-    });
+      }
+      for (const r of phoneticResults) {
+        if (!seen.has(r.item.id)) {
+          seen.add(r.item.id);
+          combined.push(r);
+        }
+      }
+      results = combined;
+    } else {
+      results = fuse.search(query, { limit: MAX_RESULTS });
+    }
+
+    // Filter by text type
+    const filteredResults = results.filter(r => {
+      const text = r.item.text || 'ts';
+      return filters.includes(text);
+    }).slice(0, MAX_RESULTS);
+
+    const elapsed = (performance.now() - startTime).toFixed(1);
+    
+    showDidYouMean(query);
+
+    if (filteredResults.length === 0) {
+      searchStatus.textContent = `No results found for "${query}" (${elapsed}ms)`;
+      searchResults.innerHTML = '<p class="no-results">No passages found. Try different spelling or enable phonetic matching.</p>';
+    } else {
+      const totalFound = results.length;
+      const shownCount = filteredResults.length;
+      searchStatus.textContent = `Found ${shownCount} results${totalFound > shownCount ? ` (of ${totalFound} total)` : ''} for "${query}" (${elapsed}ms)`;
+      searchResults.innerHTML = filteredResults.map(r => renderResult(r.item, query)).join('');
+    }
+  }
+
+  // Event listeners
+  searchBtn.addEventListener('click', performSearch);
+  searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') performSearch();
+  });
+  
+  // Debounced input search
+  let debounceTimer: number;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = window.setTimeout(performSearch, 300);
+  });
+
+  // Re-filter when checkboxes change
+  document.querySelectorAll('.filter-checkbox').forEach(cb => {
+    cb.addEventListener('change', performSearch);
+  });
+
+  // Re-search when phonetic mode changes
+  phoneticMode.addEventListener('change', performSearch);
+
+  // Check URL params for initial filter
+  document.addEventListener('DOMContentLoaded', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const textParam = urlParams.get('text');
+    if (textParam) {
+      (document.getElementById('filter-ts') as HTMLInputElement).checked = textParam === 'ts' || textParam === 'all';
+      (document.getElementById('filter-tb') as HTMLInputElement).checked = textParam === 'tb' || textParam === 'all';
+      (document.getElementById('filter-ta') as HTMLInputElement).checked = textParam === 'ta' || textParam === 'all';
+    }
+    
+    await loadSearchIndex();
+    searchInput.focus();
   });
 </script>
 
 <style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .search-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .search-box {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: var(--color-primary);
+  }
+
+  .search-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .search-btn:hover {
+    background: var(--color-accent);
+  }
+
+  .search-options {
+    margin-bottom: 0.75rem;
+  }
+
+  .option-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #666;
+    cursor: pointer;
+  }
+
+  .option-label input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-primary);
+  }
+
+  .highlight-legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    color: #666;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .legend-color {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+  }
+
+  .legend-color.exact {
+    background: #fef3c7;
+  }
+
+  .legend-color.phonetic {
+    background: #dbeafe;
+  }
+
+  .text-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .filter-title {
+    font-size: 0.85rem;
+    color: #666;
+    margin-right: 0.5rem;
+  }
+
+  .filter-label {
+    cursor: pointer;
+  }
+
+  .filter-checkbox {
+    display: none;
+  }
+
+  .filter-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .filter-checkbox:checked + .filter-tag {
+    border-color: currentColor;
+    font-weight: 600;
+  }
+
+  .filter-checkbox:not(:checked) + .filter-tag {
+    opacity: 0.5;
+  }
+
+  .ts-tag { background: #ccfbf1; color: #0d9488; }
+  .tb-tag { background: #fef3c7; color: #d97706; }
+  .ta-tag { background: #f3e8ff; color: #7c3aed; }
+
+  .search-status {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .did-you-mean {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: #fffbeb;
+    border-radius: 6px;
+    border-left: 3px solid #f59e0b;
+  }
+
+  .did-you-mean:empty {
+    display: none;
+  }
+
+  .did-you-mean-label {
+    color: #92400e;
+    font-weight: 500;
+  }
+
+  .suggestion-link {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .suggestion-link:hover {
+    text-decoration: underline;
+  }
+
+  .result-item {
+    display: block;
+    background: white;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-left: 4px solid #ccc;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .result-item.ts-border { border-left-color: #0d9488; }
+  .result-item.tb-border { border-left-color: #d97706; }
+  .result-item.ta-border { border-left-color: #7c3aed; }
+
+  .result-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    transform: translateX(4px);
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .ts-badge { background: #ccfbf1; color: #0d9488; }
+  .tb-badge { background: #fef3c7; color: #d97706; }
+  .ta-badge { background: #f3e8ff; color: #7c3aed; }
+
+  .result-id {
+    font-weight: 700;
+    color: var(--color-primary);
+    font-size: 1rem;
+  }
+
+  .result-arrow {
+    margin-left: auto;
+    font-size: 1.1rem;
+    color: #ccc;
+    transition: transform 0.2s, color 0.2s;
+  }
+
+  .result-item:hover .result-arrow {
+    transform: translateX(4px);
+    color: var(--color-primary);
+  }
+
+  .result-text {
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.6;
+  }
+
+  .result-text :global(mark.exact-match) {
+    background: #fef3c7;
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+
+  .result-text :global(mark.phonetic-match) {
+    background: #dbeafe;
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+
+  .no-results {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+    background: #f9fafb;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .search-box {
+      flex-direction: column;
+    }
+
+    .search-btn {
+      width: 100%;
+    }
+
+    .highlight-legend {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .text-filters {
+      justify-content: center;
+    }
+
+    .filter-title {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 0.25rem;
+    }
   }
 </style>

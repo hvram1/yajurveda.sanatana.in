@@ -2,10 +2,17 @@
 interface Props {
   title: string;
   description?: string;
+  activeText?: 'ts' | 'tb' | 'ta';
 }
 
-const { title, description = 'यजुर्वेद - कृष्ण यजुर्वेद तैत्तिरीय संहिता' } = Astro.props;
+const { title, description = 'यजुर्वेद - कृष्ण यजुर्वेद तैत्तिरीय शाखा', activeText } = Astro.props;
 const base = import.meta.env.BASE_URL;
+
+const texts = [
+  { id: 'ts', name: 'संहिता', nameEn: 'Samhita', path: `${base}ts/` },
+  { id: 'tb', name: 'ब्राह्मण', nameEn: 'Brahmana', path: `${base}tb/` },
+  { id: 'ta', name: 'आरण्यक', nameEn: 'Aranyaka', path: `${base}ta/` },
+];
 ---
 
 <!DOCTYPE html>
@@ -39,19 +46,112 @@ const base = import.meta.env.BASE_URL;
           <div class="header-logo-placeholder">॥</div>
         </a>
         <h1 class="header-title">यजुर्वेद</h1>
-        <p class="header-tagline">Yajurvēda - कृष्ण यजुर्वेद तैत्तिरीय संहिता</p>
+        <p class="header-tagline">Yajurvēda - कृष्ण यजुर्वेद तैत्तिरीय शाखा</p>
       </div>
     </div>
 
     <!-- Navigation bar -->
     <nav class="navbar sticky top-0 z-50">
-      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-center gap-4">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-center gap-4">
         <a href={base} class="nav-link">मुख्यपृष्ठम्</a>
-        <a href={`${base}prasna/1/1`} class="nav-link">काण्डानि</a>
-        <a href={`${base}panchasat-index`} class="nav-link">पञ्चशत् सूची</a>
+        
+        <!-- Text Selector Dropdown -->
+        <div class="text-selector-wrapper">
+          <button class="text-selector-btn" id="text-selector-btn">
+            <span class="selector-label">{activeText ? texts.find(t => t.id === activeText)?.name || 'ग्रन्थाः' : 'ग्रन्थाः'}</span>
+            <svg class="selector-arrow" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          <div class="text-dropdown hidden" id="text-dropdown">
+            {texts.map(text => (
+              <a 
+                href="#" 
+                class={`text-option ${activeText === text.id ? 'active' : ''}`}
+                data-text={text.id}
+                data-default-path={text.path}
+              >
+                <span class={`option-badge ${text.id}-badge`}>{text.id.toUpperCase()}</span>
+                <div class="option-text">
+                  <span class="option-name">{text.name}</span>
+                  <span class="option-name-en">{text.nameEn}</span>
+                </div>
+                {activeText === text.id && <span class="option-check">✓</span>}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {activeText === 'ts' && (
+          <>
+            <a href={`${base}ts/panchasat-index`} class="nav-link">पञ्चशत् सूची</a>
+          </>
+        )}
         <a href={`${base}search`} class="nav-link">अन्वेषणम्</a>
       </div>
     </nav>
+    
+    <script>
+      // Text selector dropdown with position memory
+      document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('text-selector-btn');
+        const dropdown = document.getElementById('text-dropdown');
+        const STORAGE_KEY = 'yajurveda-last-position';
+        
+        // Save current position to localStorage
+        function savePosition() {
+          const path = window.location.pathname;
+          const positions = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          
+          // Detect which text we're in
+          if (path.includes('/ts/')) {
+            positions.ts = path;
+          } else if (path.includes('/tb/')) {
+            positions.tb = path;
+          } else if (path.includes('/ta/')) {
+            positions.ta = path;
+          }
+          
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
+        }
+        
+        // Get saved position for a text
+        function getSavedPosition(textId: string): string | null {
+          const positions = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          return positions[textId] || null;
+        }
+        
+        // Save position on page load
+        savePosition();
+        
+        // Toggle dropdown
+        btn?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          dropdown?.classList.toggle('hidden');
+          btn.classList.toggle('open');
+        });
+        
+        // Close on outside click
+        document.addEventListener('click', () => {
+          dropdown?.classList.add('hidden');
+          btn?.classList.remove('open');
+        });
+        
+        // Handle option clicks - navigate to saved position or default
+        dropdown?.querySelectorAll('.text-option').forEach(option => {
+          option.addEventListener('click', (e) => {
+            e.preventDefault();
+            const textId = (option as HTMLElement).dataset.text;
+            const defaultPath = (option as HTMLElement).dataset.defaultPath;
+            
+            if (textId) {
+              const savedPath = getSavedPosition(textId);
+              window.location.href = savedPath || defaultPath || '/';
+            }
+          });
+        });
+      });
+    </script>
 
     <main class="max-w-6xl mx-auto px-4 py-8">
       <slot />

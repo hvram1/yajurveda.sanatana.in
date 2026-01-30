@@ -1,0 +1,175 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import fs from 'fs';
+import path from 'path';
+
+const base = import.meta.env.BASE_URL;
+const tbBase = `${base}tb/`;
+
+// Load TB metadata
+const metadataPath = path.join(process.cwd(), 'src/data/tb/metadata.json');
+const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
+
+// Calculate totals
+const totalPrapatakas = metadata.prasnas.reduce((sum, p) => sum + p.prapatakas.length, 0);
+const totalAnuvakas = metadata.prasnas.reduce((sum, p) => 
+  sum + p.prapatakas.reduce((ps, pr) => ps + pr.anuvakas.length, 0), 0);
+const totalPanchasats = metadata.prasnas.reduce((sum, p) => 
+  sum + p.prapatakas.reduce((ps, pr) => 
+    ps + pr.anuvakas.reduce((as, a) => as + a.panchasats, 0), 0), 0);
+---
+
+<BaseLayout title="तैत्तिरीय ब्राह्मण" activeText="tb">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl md:text-4xl text-indigo mb-4">तैत्तिरीय ब्राह्मण</h1>
+    <p class="text-lg text-gray-600">Taittiriya Brahmana</p>
+  </div>
+
+  <div class="fancy mb-8">
+    <span>॥</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+    <div class="verse-card text-center">
+      <div class="text-3xl font-bold text-amber-600">{metadata.prasnas.length}</div>
+      <div class="text-sm text-gray-600">प्रश्नाः</div>
+      <div class="text-xs text-gray-500">Prasnas</div>
+    </div>
+    <div class="verse-card text-center">
+      <div class="text-3xl font-bold text-amber-600">{totalPrapatakas}</div>
+      <div class="text-sm text-gray-600">प्रपाठकाः</div>
+      <div class="text-xs text-gray-500">Prapatakas</div>
+    </div>
+    <div class="verse-card text-center">
+      <div class="text-3xl font-bold text-amber-600">{totalAnuvakas}</div>
+      <div class="text-sm text-gray-600">अनुवाकाः</div>
+      <div class="text-xs text-gray-500">Anuvakas</div>
+    </div>
+    <div class="verse-card text-center">
+      <div class="text-3xl font-bold text-amber-600">{totalPanchasats}</div>
+      <div class="text-sm text-gray-600">पञ्चाशत्</div>
+      <div class="text-xs text-gray-500">Panchasats</div>
+    </div>
+  </div>
+
+  <!-- Prasna Cards -->
+  <section class="mb-12">
+    <h2 class="text-2xl text-indigo mb-6 text-center">प्रश्नाः (Prasnas)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {metadata.prasnas.map(prasna => {
+        const prapaCount = prasna.prapatakas.length;
+        const anuvCount = prasna.prapatakas.reduce((sum, pr) => sum + pr.anuvakas.length, 0);
+        const panchCount = prasna.prapatakas.reduce((sum, pr) => 
+          sum + pr.anuvakas.reduce((as, a) => as + a.panchasats, 0), 0);
+        
+        return (
+          <a href={`${tbBase}prasna/${prasna.prasna}`} class="prasna-card group">
+            <div class="prasna-header bg-gradient-to-br from-amber-500 to-amber-700">
+              <div class="prasna-number">{prasna.prasna}</div>
+              <h3 class="text-xl font-bold">प्रश्नः {prasna.prasna}</h3>
+            </div>
+            <div class="prasna-body">
+              <div class="stat-row">
+                <span class="stat-label">प्रपाठकाः:</span>
+                <span class="stat-value">{prapaCount}</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">अनुवाकाः:</span>
+                <span class="stat-value">{anuvCount}</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">पञ्चाशत्:</span>
+                <span class="stat-value">{panchCount}</span>
+              </div>
+              <div class="view-link group-hover:underline">अवलोकनम् →</div>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- About section -->
+  <section class="verse-card mt-12">
+    <h2 class="text-xl text-indigo mb-4">ब्राह्मण विषये</h2>
+    <div class="text-gray-700 space-y-4">
+      <p>
+        तैत्तिरीय ब्राह्मणं संहितायाः मन्त्राणां विस्तृतं व्याख्यानं प्रदत्ते। 
+        अस्मिन् यज्ञविधयः, ऋत्विजां कर्तव्यानि, मन्त्राणां अर्थाश्च वर्णिताः।
+      </p>
+      <p>
+        The Taittiriya Brahmana provides elaborate explanations of the mantras in the Samhita.
+        It describes ritual procedures, duties of priests, and meanings of the mantras.
+        It consists of 3 Prasnas (books) with detailed instructions for various Vedic rituals.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .prasna-card {
+    display: block;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: white;
+  }
+  
+  .prasna-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .prasna-header {
+    padding: 1.5rem;
+    color: white;
+    text-align: center;
+  }
+  
+  .prasna-number {
+    width: 48px;
+    height: 48px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0 auto 0.5rem;
+  }
+  
+  .prasna-body {
+    padding: 1rem;
+  }
+  
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .stat-row:last-of-type {
+    border-bottom: none;
+  }
+  
+  .stat-label {
+    color: #666;
+    font-size: 0.875rem;
+  }
+  
+  .stat-value {
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .view-link {
+    margin-top: 0.75rem;
+    text-align: center;
+    color: var(--color-primary);
+    font-size: 0.875rem;
+  }
+</style>

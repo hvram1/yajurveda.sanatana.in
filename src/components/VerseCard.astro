@@ -4,10 +4,11 @@ import type { PanchasatData } from '../lib/utils';
 interface Props {
   verse: PanchasatData;
   showDetails?: boolean;
+  basePath?: string;
 }
 
-const { verse, showDetails = false } = Astro.props;
-const base = import.meta.env.BASE_URL;
+const { verse, showDetails = false, basePath } = Astro.props;
+const base = basePath || import.meta.env.BASE_URL;
 
 const kanda = parseInt(verse.classification.kanda);
 const prasna = parseInt(verse.classification.prasna);

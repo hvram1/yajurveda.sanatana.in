@@ -1,0 +1,1470 @@
+{
+  "prasnas": [
+    {
+      "prasna": 1,
+      "prapatakas": [
+        {
+          "prapaataka": 1,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 8
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 12
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 10
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 11
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 10
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 6
+            }
+          ]
+        },
+        {
+          "prapaataka": 2,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 27
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 7
+            }
+          ]
+        },
+        {
+          "prapaataka": 3,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 8
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 10
+            }
+          ]
+        },
+        {
+          "prapaataka": 4,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 11
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 10
+            }
+          ]
+        },
+        {
+          "prapaataka": 5,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 12,
+              "panchasats": 5
+            }
+          ]
+        },
+        {
+          "prapaataka": 6,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 11
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 10
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 11
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 5
+            }
+          ]
+        },
+        {
+          "prapaataka": 7,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 8
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 8
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 6
+            }
+          ]
+        },
+        {
+          "prapaataka": 8,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "prasna": 2,
+      "prapatakas": [
+        {
+          "prapaataka": 1,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 12
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 11
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 1
+            }
+          ]
+        },
+        {
+          "prapaataka": 2,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 8
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 10
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 8
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 6
+            }
+          ]
+        },
+        {
+          "prapaataka": 3,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 4
+            }
+          ]
+        },
+        {
+          "prapaataka": 4,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 11
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 13
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 10
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 12
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 10
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 7
+            }
+          ]
+        },
+        {
+          "prapaataka": 5,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 12
+            }
+          ]
+        },
+        {
+          "prapaataka": 6,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 8
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 10
+            },
+            {
+              "anuvaka": 12,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 13,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 14,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 15,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 16,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 17,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 18,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 19,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 20,
+              "panchasats": 5
+            }
+          ]
+        },
+        {
+          "prapaataka": 7,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 12,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 13,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 14,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 15,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 16,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 17,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 18,
+              "panchasats": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "prasna": 3,
+      "prapatakas": [
+        {
+          "prapaataka": 1,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 12
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 10
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 15
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 15
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 7
+            }
+          ]
+        },
+        {
+          "prapaataka": 2,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 12
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 11
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 12
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 15
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 3
+            }
+          ]
+        },
+        {
+          "prapaataka": 3,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 11
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 11
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 11
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 12
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 4
+            }
+          ]
+        },
+        {
+          "prapaataka": 4,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 12,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 13,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 14,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 15,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 16,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 17,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 18,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 19,
+              "panchasats": 1
+            }
+          ]
+        },
+        {
+          "prapaataka": 5,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 12,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 13,
+              "panchasats": 3
+            }
+          ]
+        },
+        {
+          "prapaataka": 6,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 12,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 13,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 14,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 15,
+              "panchasats": 1
+            }
+          ]
+        },
+        {
+          "prapaataka": 7,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 18
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 13
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 24
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 14
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 12,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 13,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 14,
+              "panchasats": 5
+            }
+          ]
+        },
+        {
+          "prapaataka": 8,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 12,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 13,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 14,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 15,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 16,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 17,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 18,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 19,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 20,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 21,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 22,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 23,
+              "panchasats": 3
+            }
+          ]
+        },
+        {
+          "prapaataka": 9,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 8
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 12,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 13,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 14,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 15,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 16,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 17,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 18,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 19,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 20,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 21,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 22,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 23,
+              "panchasats": 2
+            }
+          ]
+        },
+        {
+          "prapaataka": 10,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 10
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 15
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 11,
+              "panchasats": 7
+            }
+          ]
+        },
+        {
+          "prapaataka": 11,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 21
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 2
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 8
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 10,
+              "panchasats": 4
+            }
+          ]
+        },
+        {
+          "prapaataka": 12,
+          "anuvakas": [
+            {
+              "anuvaka": 1,
+              "panchasats": 1
+            },
+            {
+              "anuvaka": 2,
+              "panchasats": 9
+            },
+            {
+              "anuvaka": 3,
+              "panchasats": 4
+            },
+            {
+              "anuvaka": 4,
+              "panchasats": 7
+            },
+            {
+              "anuvaka": 5,
+              "panchasats": 13
+            },
+            {
+              "anuvaka": 6,
+              "panchasats": 6
+            },
+            {
+              "anuvaka": 7,
+              "panchasats": 5
+            },
+            {
+              "anuvaka": 8,
+              "panchasats": 3
+            },
+            {
+              "anuvaka": 9,
+              "panchasats": 8
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
