@@ -1,0 +1,519 @@
+---
+/**
+ * PrasnaAudioPlayer - Chained audio player for all Anuvakas in a Prasna
+ * 
+ * Plays through all Anuvaka audio files sequentially with:
+ * - Current track display
+ * - Auto-advance to next Anuvaka
+ * - Prev/Next skip buttons
+ * - Overall progress indicator
+ */
+
+import { getAnuvakaAudioUrl } from '../lib/config';
+
+interface AnuvakaInfo {
+  id: number;
+  info?: string;
+  panchasatCount: number;
+}
+
+interface Props {
+  kanda: number;
+  prasna: number;
+  anuvakas: AnuvakaInfo[];
+  basePath: string;
+}
+
+const { kanda, prasna, anuvakas, basePath } = Astro.props;
+
+// Build playlist of audio URLs
+const playlist = anuvakas.map(a => ({
+  id: a.id,
+  url: getAnuvakaAudioUrl(kanda, prasna, a.id, basePath),
+  info: a.info || ''
+}));
+
+const playlistJson = JSON.stringify(playlist);
+---
+
+<div class="prasna-player" id="prasna-player">
+  <div class="prasna-player__header">
+    <span class="prasna-player__title">प्रश्नः {prasna} - सम्पूर्ण श्रवणम्</span>
+    <span class="prasna-player__track" id="pp-track-info">
+      अनुवाकः 1 / {anuvakas.length}
+    </span>
+  </div>
+  
+  <div class="prasna-player__controls">
+    <button class="pp-btn pp-btn--prev" id="pp-prev" title="Previous Anuvaka">⏮</button>
+    <button class="pp-btn pp-btn--play" id="pp-play">▶</button>
+    <button class="pp-btn pp-btn--next" id="pp-next" title="Next Anuvaka">⏭</button>
+  </div>
+  
+  <div class="prasna-player__progress">
+    <div class="pp-progress-bar" id="pp-progress-bar">
+      <div class="pp-progress-fill" id="pp-progress-fill"></div>
+      <div class="pp-track-markers" id="pp-track-markers">
+        {/* Track markers rendered by JS */}
+      </div>
+    </div>
+    <div class="pp-time-info">
+      <span id="pp-current-time">0:00</span>
+      <span id="pp-total-time">--:--</span>
+    </div>
+  </div>
+  
+  <div class="prasna-player__info" id="pp-anuvaka-info"></div>
+  
+  <audio id="pp-audio" preload="metadata"></audio>
+</div>
+
+<script define:vars={{ playlistJson, kanda, prasna }}>
+  const playlist = JSON.parse(playlistJson);
+  let currentIndex = 0;
+  let isPlaying = false;
+  let trackDurations = [];
+  let totalDuration = 0;
+  let durationsLoaded = false;
+
+  // DOM elements
+  const audio = document.getElementById('pp-audio');
+  const playBtn = document.getElementById('pp-play');
+  const prevBtn = document.getElementById('pp-prev');
+  const nextBtn = document.getElementById('pp-next');
+  const progressBar = document.getElementById('pp-progress-bar');
+  const progressFill = document.getElementById('pp-progress-fill');
+  const trackInfo = document.getElementById('pp-track-info');
+  const anuvakaInfo = document.getElementById('pp-anuvaka-info');
+  const currentTimeEl = document.getElementById('pp-current-time');
+  const totalTimeEl = document.getElementById('pp-total-time');
+  const trackMarkers = document.getElementById('pp-track-markers');
+
+  // Initialize
+  async function init() {
+    // Load first track
+    loadTrack(0);
+    
+    // Preload durations for all tracks (for progress calculation)
+    await loadAllDurations();
+  }
+
+  async function loadAllDurations() {
+    trackDurations = [];
+    totalDuration = 0;
+    
+    for (const track of playlist) {
+      const duration = await getAudioDuration(track.url);
+      trackDurations.push(duration);
+      totalDuration += duration;
+    }
+    
+    durationsLoaded = true;
+    updateTotalTime();
+    renderTrackMarkers();
+  }
+
+  function getAudioDuration(url) {
+    return new Promise((resolve) => {
+      const tempAudio = new Audio();
+      tempAudio.preload = 'metadata';
+      tempAudio.onloadedmetadata = () => resolve(tempAudio.duration);
+      tempAudio.onerror = () => resolve(60); // Default fallback
+      tempAudio.src = url;
+    });
+  }
+
+  function renderTrackMarkers() {
+    if (!trackMarkers || !durationsLoaded) return;
+    
+    let accumulated = 0;
+    let html = '';
+    
+    for (let i = 0; i < trackDurations.length - 1; i++) {
+      accumulated += trackDurations[i];
+      const percent = (accumulated / totalDuration) * 100;
+      html += '<div class="pp-track-marker" style="left: ' + percent + '%" title="अनुवाकः ' + (i + 2) + '"></div>';
+    }
+    
+    trackMarkers.innerHTML = html;
+  }
+
+  function loadTrack(index) {
+    if (index < 0 || index >= playlist.length) return;
+    
+    currentIndex = index;
+    const track = playlist[currentIndex];
+    
+    audio.src = track.url;
+    audio.load();
+    
+    updateTrackInfo();
+  }
+
+  function updateTrackInfo() {
+    const track = playlist[currentIndex];
+    
+    if (trackInfo) {
+      trackInfo.textContent = 'अनुवाकः ' + track.id + ' / ' + playlist.length;
+    }
+    
+    if (anuvakaInfo) {
+      anuvakaInfo.textContent = track.info || '';
+    }
+    
+    // Update button states
+    if (prevBtn) {
+      prevBtn.disabled = currentIndex === 0;
+      prevBtn.classList.toggle('pp-btn--disabled', currentIndex === 0);
+    }
+    if (nextBtn) {
+      nextBtn.disabled = currentIndex === playlist.length - 1;
+      nextBtn.classList.toggle('pp-btn--disabled', currentIndex === playlist.length - 1);
+    }
+    
+    // Highlight corresponding Anuvaka card
+    highlightAnuvakaCard(track.id);
+  }
+
+  function highlightAnuvakaCard(anuvakaId) {
+    // Remove previous highlight
+    document.querySelectorAll('.anuvaka-card').forEach(card => {
+      card.classList.remove('anuvaka-card--playing');
+    });
+    
+    // Find and highlight current card
+    const cards = document.querySelectorAll('.anuvaka-card');
+    cards.forEach((card, i) => {
+      if (i + 1 === anuvakaId) {
+        card.classList.add('anuvaka-card--playing');
+      }
+    });
+  }
+
+  function updateTotalTime() {
+    if (totalTimeEl && durationsLoaded) {
+      totalTimeEl.textContent = formatTime(totalDuration);
+    }
+  }
+
+  function updateProgress() {
+    if (!durationsLoaded || !audio) return;
+    
+    // Calculate total elapsed time
+    let elapsed = 0;
+    for (let i = 0; i < currentIndex; i++) {
+      elapsed += trackDurations[i];
+    }
+    elapsed += audio.currentTime;
+    
+    // Update progress bar
+    const percent = (elapsed / totalDuration) * 100;
+    if (progressFill) {
+      progressFill.style.width = percent + '%';
+    }
+    
+    // Update time display
+    if (currentTimeEl) {
+      currentTimeEl.textContent = formatTime(elapsed);
+    }
+  }
+
+  function formatTime(seconds) {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return mins + ':' + secs.toString().padStart(2, '0');
+  }
+
+  // Play/Pause
+  playBtn?.addEventListener('click', () => {
+    if (isPlaying) {
+      audio.pause();
+      isPlaying = false;
+      playBtn.textContent = '▶';
+    } else {
+      audio.play();
+      isPlaying = true;
+      playBtn.textContent = '⏸';
+    }
+  });
+
+  // Previous track
+  prevBtn?.addEventListener('click', () => {
+    if (currentIndex > 0) {
+      loadTrack(currentIndex - 1);
+      if (isPlaying) {
+        audio.play();
+      }
+    }
+  });
+
+  // Next track
+  nextBtn?.addEventListener('click', () => {
+    if (currentIndex < playlist.length - 1) {
+      loadTrack(currentIndex + 1);
+      if (isPlaying) {
+        audio.play();
+      }
+    }
+  });
+
+  // Progress bar click to seek
+  progressBar?.addEventListener('click', (e) => {
+    if (!durationsLoaded) return;
+    
+    const rect = progressBar.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    const targetTime = percent * totalDuration;
+    
+    // Find which track this falls into
+    let accumulated = 0;
+    for (let i = 0; i < trackDurations.length; i++) {
+      if (accumulated + trackDurations[i] > targetTime) {
+        // This is the track
+        if (i !== currentIndex) {
+          loadTrack(i);
+        }
+        audio.currentTime = targetTime - accumulated;
+        if (isPlaying) {
+          audio.play();
+        }
+        return;
+      }
+      accumulated += trackDurations[i];
+    }
+  });
+
+  // Audio events
+  audio?.addEventListener('timeupdate', updateProgress);
+
+  audio?.addEventListener('ended', () => {
+    // Auto-advance to next track
+    if (currentIndex < playlist.length - 1) {
+      loadTrack(currentIndex + 1);
+      audio.play();
+    } else {
+      // Playlist finished
+      isPlaying = false;
+      playBtn.textContent = '▶';
+      highlightAnuvakaCard(-1); // Remove all highlights
+    }
+  });
+
+  audio?.addEventListener('error', () => {
+    console.error('Error loading audio:', playlist[currentIndex]?.url);
+    // Try next track
+    if (currentIndex < playlist.length - 1) {
+      loadTrack(currentIndex + 1);
+      if (isPlaying) audio.play();
+    }
+  });
+
+  // Allow clicking Anuvaka cards to jump to that track
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.anuvaka-card').forEach((card, i) => {
+      card.addEventListener('click', (e) => {
+        // Check if it's a direct click on the card (not following the link)
+        if (e.ctrlKey || e.metaKey || e.shiftKey) return; // Allow normal link behavior with modifiers
+        
+        // If player is active, intercept click to play this track
+        if (isPlaying || audio.currentTime > 0) {
+          e.preventDefault();
+          loadTrack(i);
+          audio.play();
+          isPlaying = true;
+          playBtn.textContent = '⏸';
+        }
+      });
+    });
+  });
+
+  // Initialize on load
+  init();
+</script>
+
+<style>
+  .prasna-player {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #0a4a4a 100%);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .prasna-player__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .prasna-player__title {
+    font-family: 'AdiShilaVedic', serif;
+    font-size: 1.1rem;
+    color: white;
+  }
+
+  .prasna-player__track {
+    font-size: 0.9rem;
+    color: var(--color-accent, #2e8b8b);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+  }
+
+  .prasna-player__controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .pp-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pp-btn--play {
+    width: 56px;
+    height: 56px;
+    font-size: 1.5rem;
+    background: var(--color-accent, #2e8b8b);
+    border: none;
+  }
+
+  .pp-btn--play:hover {
+    background: #3aa0a0;
+    transform: scale(1.05);
+  }
+
+  .pp-btn--prev,
+  .pp-btn--next {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .pp-btn--prev:hover,
+  .pp-btn--next:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .pp-btn--disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .pp-btn--disabled:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: none;
+  }
+
+  .prasna-player__progress {
+    margin-bottom: 0.5rem;
+  }
+
+  .pp-progress-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: visible;
+  }
+
+  .pp-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent, #2e8b8b), var(--color-golden, #c9a227));
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  .pp-track-markers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+
+  .pp-track-marker {
+    position: absolute;
+    top: -2px;
+    width: 2px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translateX(-50%);
+  }
+
+  .pp-time-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.25rem;
+  }
+
+  .prasna-player__info {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    min-height: 1.2em;
+    font-style: italic;
+  }
+
+  /* Highlight playing Anuvaka card */
+  :global(.anuvaka-card--playing) {
+    border-color: var(--color-accent, #2e8b8b) !important;
+    box-shadow: 0 0 0 2px var(--color-accent, #2e8b8b), 0 4px 12px rgba(46, 139, 139, 0.3) !important;
+  }
+
+  :global(.anuvaka-card--playing::before) {
+    content: '♪';
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1rem;
+    color: var(--color-accent, #2e8b8b);
+  }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    .prasna-player {
+      padding: 1rem;
+    }
+
+    .prasna-player__header {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .prasna-player__title {
+      font-size: 1rem;
+    }
+
+    .pp-btn--play {
+      width: 48px;
+      height: 48px;
+      font-size: 1.25rem;
+    }
+
+    .pp-btn--prev,
+    .pp-btn--next {
+      width: 36px;
+      height: 36px;
+    }
+  }
+</style>

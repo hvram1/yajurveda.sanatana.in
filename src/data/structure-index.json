@@ -4161,5 +4161,113 @@
         }
       ]
     }
-  ]
+  ],
+  "parichaya": {
+    "general": [
+      {
+        "id": "veda-svarupa",
+        "title": "वेदस्वरूपविचारः",
+        "path": "/parichaya/general/veda-svarupa"
+      },
+      {
+        "id": "veda-avirbhava",
+        "title": "वेदाविर्भावः",
+        "path": "/parichaya/general/veda-avirbhava"
+      },
+      {
+        "id": "vishvarupa",
+        "title": "विश्वरूपः परमात्मा वेदरूपः",
+        "path": "/parichaya/general/vishvarupa"
+      },
+      {
+        "id": "veda-darshanam",
+        "title": "वेददर्शनम्",
+        "path": "/parichaya/general/veda-darshanam"
+      },
+      {
+        "id": "apaurusheya",
+        "title": "वेदस्यापौरुषेयत्वम्",
+        "path": "/parichaya/general/apaurusheya"
+      },
+      {
+        "id": "veda-ekatva",
+        "title": "वेदैकत्वविचारः",
+        "path": "/parichaya/general/veda-ekatva"
+      },
+      {
+        "id": "rigadi-lakshana",
+        "title": "ऋगादिलक्षणविचारः",
+        "path": "/parichaya/general/rigadi-lakshana"
+      },
+      {
+        "id": "shukla-krishna",
+        "title": "यजुर्वेदस्य शुक्लकृष्णभेदौ",
+        "path": "/parichaya/general/shukla-krishna"
+      },
+      {
+        "id": "yatayamata",
+        "title": "वेदस्य यातयामत्ता",
+        "path": "/parichaya/general/yatayamata"
+      },
+      {
+        "id": "vedartha-vimarsha",
+        "title": "वेदार्थविमर्शः",
+        "path": "/parichaya/general/vedartha-vimarsha"
+      }
+    ],
+    "ts": [
+      {
+        "id": "index",
+        "title": "यजुर्वेदप्रस्तावः",
+        "path": "/parichaya/ts"
+      },
+      {
+        "id": "rishi",
+        "title": "ऋष्यादिविचारः",
+        "path": "/parichaya/ts/rishi"
+      },
+      {
+        "id": "devata",
+        "title": "देवताविचारः",
+        "path": "/parichaya/ts/devata"
+      },
+      {
+        "id": "chandas",
+        "title": "छन्दोविचारः",
+        "path": "/parichaya/ts/chandas"
+      },
+      {
+        "id": "kanda-anukramanika",
+        "title": "काण्डानुक्रमणिका",
+        "path": "/parichaya/ts/kanda-anukramanika"
+      }
+    ],
+    "kandas": [
+      {
+        "id": 1,
+        "title": "प्रथमं प्राजापत्यं काण्डम्",
+        "path": "/parichaya/ts/kanda/1"
+      },
+      {
+        "id": 2,
+        "title": "द्वितीयं सौम्यं काण्डम्",
+        "path": "/parichaya/ts/kanda/2"
+      },
+      {
+        "id": 3,
+        "title": "तृतीयं आग्नेयं काण्डम्",
+        "path": "/parichaya/ts/kanda/3"
+      },
+      {
+        "id": 4,
+        "title": "चतुर्थं वैश्वदेवं काण्डम्",
+        "path": "/parichaya/ts/kanda/4"
+      },
+      {
+        "id": 5,
+        "title": "पञ्चमं स्वायम्भुवं काण्डम्",
+        "path": "/parichaya/ts/kanda/5"
+      }
+    ]
+  }
 }

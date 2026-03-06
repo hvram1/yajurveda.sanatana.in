@@ -1,6 +1,9 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getStructureIndex, KANDA_NAMES, KANDA_NAMES_EN } from '../../../lib/utils';
+import fs from 'node:fs';
+import path from 'node:path';
+import { marked } from 'marked';
 
 export function getStaticPaths() {
   const structure = getStructureIndex();
@@ -14,6 +17,35 @@ const kandaNum = parseInt(id);
 const structure = getStructureIndex();
 const kanda = structure.kandas.find(k => k.id === kandaNum);
 const base = import.meta.env.BASE_URL;
+
+// Load Kanda-specific parichaya content if available
+let kandaContent = '';
+let kandaHtml = '';
+let kandaTitle = '';
+try {
+  const contentPath = path.join(process.cwd(), 'src/content/parichaya/ts/kanda', `${kandaNum}.md`);
+  if (fs.existsSync(contentPath)) {
+    const rawContent = fs.readFileSync(contentPath, 'utf-8');
+    // Extract content after frontmatter
+    const parts = rawContent.split('---');
+    if (parts.length >= 3) {
+      // Parse frontmatter for title
+      const frontmatter = parts[1];
+      const titleMatch = frontmatter.match(/title:\s*"([^"]+)"/);
+      if (titleMatch) kandaTitle = titleMatch[1];
+      // Get content (skip the # heading line)
+      const content = parts.slice(2).join('---').trim();
+      const lines = content.split('\n');
+      // Skip the first line if it's a heading
+      kandaContent = lines[0].startsWith('#') ? lines.slice(1).join('\n').trim() : content;
+      // Convert to HTML
+      kandaHtml = marked.parse(kandaContent);
+    }
+  }
+} catch (e) {
+  // Content not available, continue without it
+}
+const hasKandaContent = kandaContent.length > 0;
 ---
 
 <BaseLayout title={`${KANDA_NAMES[kandaNum]}`} activeText="ts">
@@ -41,6 +73,19 @@ const base = import.meta.env.BASE_URL;
   <div class="fancy mb-8">
     <span>॥</span>
   </div>
+
+  <!-- Kanda Parichaya (if available) -->
+  {hasKandaContent && (
+    <section class="mb-8">
+      <details class="kanda-parichaya border border-teal-200 rounded-lg">
+        <summary class="cursor-pointer p-4 bg-teal-50 hover:bg-teal-100 rounded-lg font-medium text-teal-800">
+          <span class="mr-2">📖</span>
+          {kandaTitle || `काण्ड ${kandaNum} परिचयः`} (Introduction)
+        </summary>
+        <div class="p-4 prose prose-teal max-w-none text-sm leading-relaxed sanskrit-text kanda-prose" set:html={kandaHtml} />
+      </details>
+    </section>
+  )}
 
   <!-- Prasna List -->
   <section>
@@ -77,3 +122,41 @@ const base = import.meta.env.BASE_URL;
     ) : <div />}
   </div>
 </BaseLayout>
+
+<style>
+  .kanda-prose {
+    font-size: 0.95rem;
+    line-height: 1.8;
+  }
+  
+  .kanda-prose :global(h2) {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0d9488;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #99f6e4;
+    padding-bottom: 0.25rem;
+  }
+  
+  .kanda-prose :global(h3) {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #115e59;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .kanda-prose :global(p) {
+    margin-bottom: 1rem;
+  }
+  
+  .kanda-prose :global(blockquote) {
+    background: #f0fdfa;
+    border-left: 3px solid #14b8a6;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    color: #134e4a;
+  }
+</style>

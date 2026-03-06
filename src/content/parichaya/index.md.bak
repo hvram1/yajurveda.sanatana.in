@@ -1,0 +1,42 @@
+---
+title: "परिचयः"
+---
+
+# परिचयः (Introduction)
+
+## सामान्यविषयाः (General Topics)
+
+- [वेदस्वरूपविचारः](./general/veda-svarupa)
+- [वेदाविर्भावः](./general/veda-avirbhava)
+- [विश्वरूपः परमात्मा वेदरूपः](./general/vishvarupa)
+- [वेददर्शनम्](./general/veda-darshanam)
+- [वेदस्यापौरुषेयत्वम्](./general/apaurusheya)
+- [वेदैकत्वविचारः](./general/veda-ekatva)
+- [ऋगादिलक्षणविचारः](./general/rigadi-lakshana)
+- [यजुर्वेदस्य शुक्लकृष्णभेदौ](./general/shukla-krishna)
+- [वेदस्य यातयामत्ता](./general/yatayamata)
+- [वेदार्थविमर्शः](./general/vedartha-vimarsha)
+
+## तैत्तिरीयसंहिता (Taittiriya Samhita)
+
+- [यजुर्वेदप्रस्तावः](./ts/index)
+- [ऋष्यादिविचारः](./ts/rishi)
+- [छन्दो विचारः](./ts/chandas)
+- [देवताविचारः](./ts/devata)
+- [काण्डानुक्रमणिका](./ts/kanda-anukramanika)
+
+### काण्डविवरणम् (Kanda Details)
+
+- [प्रथमं प्राजापत्यं काण्डम्](./ts/kanda/1)
+- [द्वितीयं सौम्यं काण्डम्](./ts/kanda/2)
+- [तृतीयं आग्नेयं काण्डम्](./ts/kanda/3)
+- [चतुर्थं वैश्वदेवं काण्डम्](./ts/kanda/4)
+- [पञ्चमं स्वायम्भुवं काण्डम्](./ts/kanda/5)
+
+## तैत्तिरीयब्राह्मणम् (Taittiriya Brahmana)
+
+- [तैत्तिरीयब्राह्मणम्](./tb/)
+
+## तैत्तिरीयारण्यकम् (Taittiriya Aranyaka)
+
+- [तैत्तिरीयारण्यकम्](./ta/)

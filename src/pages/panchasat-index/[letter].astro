@@ -33,7 +33,7 @@ const base = import.meta.env.BASE_URL;
       
       <div class="entries-list">
         {entries.map((entry, index) => (
-          <a href={`${base}panchasat/${entry.kanda}/${entry.prasna}/${entry.anuvaka}/${entry.panchasat}`} class="entry-card">
+          <a href={`${base}anuvaka/${entry.kanda}/${entry.prasna}/${entry.anuvaka}#panchasat-${entry.panchasat}`} class="entry-card">
             <div class="entry-header">
               <span class="entry-ref">TS {entry.ref}</span>
               <span class="entry-index">#{index + 1}</span>

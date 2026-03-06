@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const base = import.meta.env.BASE_URL;
+
+// Helper to load markdown content
+function loadContent(filePath: string) {
+  try {
+    const fullPath = path.join(process.cwd(), 'src/content/parichaya', filePath);
+    if (fs.existsSync(fullPath)) {
+      const raw = fs.readFileSync(fullPath, 'utf-8');
+      const parts = raw.split('---');
+      if (parts.length >= 3) {
+        const frontmatter = parts[1];
+        const titleMatch = frontmatter.match(/title:\s*"([^"]+)"/);
+        return {
+          title: titleMatch ? titleMatch[1] : filePath,
+          exists: true
+        };
+      }
+    }
+  } catch (e) {}
+  return { title: filePath, exists: false };
+}
+
+// Define sections
+const generalTopics = [
+  { file: 'general/veda-svarupa.md', slug: 'general/veda-svarupa' },
+  { file: 'general/veda-avirbhava.md', slug: 'general/veda-avirbhava' },
+  { file: 'general/vishvarupa.md', slug: 'general/vishvarupa' },
+  { file: 'general/veda-darshanam.md', slug: 'general/veda-darshanam' },
+  { file: 'general/apaurusheya.md', slug: 'general/apaurusheya' },
+  { file: 'general/veda-ekatva.md', slug: 'general/veda-ekatva' },
+  { file: 'general/rigadi-lakshana.md', slug: 'general/rigadi-lakshana' },
+  { file: 'general/shukla-krishna.md', slug: 'general/shukla-krishna' },
+  { file: 'general/vedartha-vimarsha.md', slug: 'general/vedartha-vimarsha' },
+].map(t => ({ ...t, ...loadContent(t.file) })).filter(t => t.exists);
+
+const tsTopics = [
+  { file: 'ts/index.md', slug: 'ts', label: 'यजुर्वेदप्रस्तावः' },
+  { file: 'ts/rishi.md', slug: 'ts/rishi', label: 'ऋष्यादिविचारः' },
+  { file: 'ts/chandas.md', slug: 'ts/chandas', label: 'छन्दो विचारः' },
+  { file: 'ts/devata.md', slug: 'ts/devata', label: 'देवताविचारः' },
+  { file: 'ts/kanda-anukramanika.md', slug: 'ts/kanda-anukramanika', label: 'काण्डानुक्रमणिका' },
+].map(t => ({ ...t, ...loadContent(t.file) })).filter(t => t.exists);
+
+const kandaTopics = [1, 2, 3, 4, 5, 6, 7].map(k => {
+  const info = loadContent(`ts/kanda/${k}.md`);
+  return { kanda: k, ...info, slug: `ts/kanda/${k}` };
+}).filter(t => t.exists);
+---
+
+<BaseLayout title="परिचयः" activeText="ts">
+  <nav class="breadcrumb mb-6 text-sm">
+    <a href={base}>मुख्यपृष्ठम्</a>
+    <span class="mx-2">›</span>
+    <span>परिचयः</span>
+  </nav>
+
+  <div class="text-center mb-8">
+    <h1 class="text-3xl text-indigo mb-2">परिचयः</h1>
+    <p class="text-gray-600">Introduction to Yajurveda & Related Topics</p>
+  </div>
+
+  <div class="fancy mb-8">
+    <span>॥</span>
+  </div>
+
+  <!-- General Topics -->
+  <section class="mb-10">
+    <h2 class="text-xl text-indigo mb-4 border-b pb-2">सामान्यविषयाः (General Topics)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {generalTopics.map(topic => (
+        <a 
+          href={`${base}parichaya/${topic.slug}`}
+          class="block p-4 border border-teal-200 rounded-lg hover:bg-teal-50 hover:border-teal-400 transition-all"
+        >
+          <span class="text-teal-700 font-medium">{topic.title}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Taittiriya Samhita -->
+  <section class="mb-10">
+    <h2 class="text-xl text-indigo mb-4 border-b pb-2">तैत्तिरीयसंहिता (Taittiriya Samhita)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {tsTopics.map(topic => (
+        <a 
+          href={`${base}parichaya/${topic.slug}`}
+          class="block p-4 border border-teal-200 rounded-lg hover:bg-teal-50 hover:border-teal-400 transition-all"
+        >
+          <span class="text-teal-700 font-medium">{topic.title || topic.label}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Kanda Details -->
+  {kandaTopics.length > 0 && (
+    <section class="mb-10">
+      <h2 class="text-xl text-indigo mb-4 border-b pb-2">काण्डविवरणम् (Kanda Details)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {kandaTopics.map(topic => (
+          <a 
+            href={`${base}parichaya/${topic.slug}`}
+            class="block p-4 border border-teal-200 rounded-lg hover:bg-teal-50 hover:border-teal-400 transition-all"
+          >
+            <span class="text-teal-700 font-medium">काण्डम् {topic.kanda}: {topic.title}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- TB/TA Placeholders -->
+  <section class="mb-10">
+    <h2 class="text-xl text-indigo mb-4 border-b pb-2">ब्राह्मणम् / आरण्यकम्</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <a 
+        href={`${base}parichaya/tb`}
+        class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
+      >
+        <span class="text-gray-600">तैत्तिरीयब्राह्मणम् (Coming soon)</span>
+      </a>
+      <a 
+        href={`${base}parichaya/ta`}
+        class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
+      >
+        <span class="text-gray-600">तैत्तिरीयारण्यकम् (Coming soon)</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

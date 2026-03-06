@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../../../../../layouts/BaseLayout.astro';
+import Sidebar from '../../../../../components/Sidebar.astro';
+import VerseCard from '../../../../../components/VerseCard.astro';
+import AudioPlayer from '../../../../../components/AudioPlayer.astro';
+import SvaranugamiOverlay from '../../../../../components/SvaranugamiOverlay.astro';
+import { getAnuvakaPanchasats, getStructureIndex, KANDA_NAMES, getAnuvakaSyncData } from '../../../../../lib/utils';
+import { getAnuvakaAudioUrl, hasSvaranugamiData } from '../../../../../lib/config';
+
+export function getStaticPaths() {
+  const paths: { params: { kanda: string; prasna: string; anuvaka: string } }[] = [];
+  const structure = getStructureIndex();
+  
+  for (const kanda of structure.kandas) {
+    for (const prasna of kanda.prasnas) {
+      for (const anuvaka of prasna.anuvakas) {
+        paths.push({
+          params: {
+            kanda: String(kanda.id),
+            prasna: String(prasna.id),
+            anuvaka: String(anuvaka.id)
+          }
+        });
+      }
+    }
+  }
+  
+  return paths;
+}
+
+const { kanda, prasna, anuvaka } = Astro.params;
+const kandaNum = parseInt(kanda);
+const prasnaNum = parseInt(prasna);
+const anuvakaNum = parseInt(anuvaka);
+
+const panchasats = getAnuvakaPanchasats(kandaNum, prasnaNum, anuvakaNum);
+const base = import.meta.env.BASE_URL;
+const tsBase = `${base}ts/`;
+const audioUrl = getAnuvakaAudioUrl(kandaNum, prasnaNum, anuvakaNum, base);
+
+// Load sync data for Svaranugami if available
+const hasSyncData = hasSvaranugamiData(kandaNum, prasnaNum);
+const syncDataList = hasSyncData ? getAnuvakaSyncData(kandaNum, prasnaNum, anuvakaNum) : [];
+const showSvaranugami = hasSyncData && syncDataList.length > 0;
+
+// Get structure for navigation info
+const structure = getStructureIndex();
+const kandaData = structure.kandas.find(k => k.id === kandaNum);
+const prasnaData = kandaData?.prasnas.find(p => p.id === prasnaNum);
+const anuvakaData = prasnaData?.anuvakas.find(a => a.id === anuvakaNum);
+const anuvakaInfo = anuvakaData?.info || '';
+const korvaiInfo = anuvakaData?.korvaiInfo || '';
+
+// Navigation: prev/next anuvaka
+const totalAnuvakas = prasnaData?.anuvakas.length || 0;
+const prevAnuvaka = anuvakaNum > 1 ? anuvakaNum - 1 : null;
+const nextAnuvaka = anuvakaNum < totalAnuvakas ? anuvakaNum + 1 : null;
+---
+
+<BaseLayout title={`TS ${kanda}.${prasna}.${anuvaka}`} activeText="ts">
+  <div class="page-with-sidebar">
+    <Sidebar 
+      currentKanda={kandaNum} 
+      currentPrasna={prasnaNum} 
+      currentAnuvaka={anuvakaNum}
+      basePath={tsBase}
+    />
+    <div class="main-content">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href={base}>मुख्यपृष्ठम्</a>
+        <span>›</span>
+        <a href={tsBase}>संहिता</a>
+        <span>›</span>
+        <a href={`${tsBase}kanda/${kandaNum}`}>{KANDA_NAMES[kandaNum]}</a>
+        <span>›</span>
+        <a href={`${tsBase}prasna/${kandaNum}/${prasnaNum}`}>प्रश्नः {prasnaNum}</a>
+        <span>›</span>
+        <span>अनुवाकः {anuvakaNum} - पञ्चाशत्</span>
+      </nav>
+
+      <!-- Header -->
+      <header class="anuvaka-header">
+        <h1 class="anuvaka-title">
+          अनुवाकः {anuvakaNum}
+          <span class="anuvaka-ref">TS {kanda}.{prasna}.{anuvaka}</span>
+        </h1>
+        {anuvakaInfo && <p class="anuvaka-info">{anuvakaInfo}</p>}
+        {korvaiInfo && <p class="korvai-info">{korvaiInfo}</p>}
+      </header>
+
+      <!-- Audio Player -->
+      <section class="audio-section">
+        <AudioPlayer 
+          src={audioUrl} 
+          label={`अनुवाकः ${anuvakaNum} - Complete Audio`}
+        />
+        
+        {/* Svaranugami - synced audio-text player */}
+        {showSvaranugami && (
+          <SvaranugamiOverlay 
+            syncDataList={syncDataList}
+            audioUrl={audioUrl}
+            kanda={kandaNum}
+            prasna={prasnaNum}
+            anuvaka={anuvakaNum}
+          />
+        )}
+      </section>
+
+      <!-- Panchasats -->
+      <section class="panchasats-container">
+        {panchasats.length > 0 ? (
+          panchasats.map((verse, index) => (
+            <article id={`panchasat-${index + 1}`} class="panchasat-section">
+              <div class="panchasat-anchor-header">
+                <span class="panchasat-number">पञ्चशत् {index + 1}</span>
+                <a href={`#panchasat-${index + 1}`} class="anchor-link" title="Link to this panchasat">#</a>
+              </div>
+              <VerseCard verse={verse} showDetails={true} basePath={tsBase} />
+            </article>
+          ))
+        ) : (
+          <div class="no-content">
+            <p>No content found for this Anuvaka.</p>
+          </div>
+        )}
+      </section>
+
+      <!-- Navigation -->
+      <nav class="nav-footer">
+        {prevAnuvaka ? (
+          <a href={`${tsBase}anuvaka/${kanda}/${prasna}/${prevAnuvaka}`} class="nav-btn nav-btn--prev">
+            ← अनुवाकः {prevAnuvaka}
+          </a>
+        ) : (
+          <span class="nav-btn nav-btn--disabled">← Previous</span>
+        )}
+        
+        <a href={`${tsBase}prasna/${kanda}/${prasna}`} class="nav-btn nav-btn--home">
+          प्रश्नः {prasna}
+        </a>
+        
+        {nextAnuvaka ? (
+          <a href={`${tsBase}anuvaka/${kanda}/${prasna}/${nextAnuvaka}`} class="nav-btn nav-btn--next">
+            अनुवाकः {nextAnuvaka} →
+          </a>
+        ) : (
+          <span class="nav-btn nav-btn--disabled">Next →</span>
+        )}
+      </nav>
+    </div>
+  </div>
+</BaseLayout>
+
+<!-- Styles now in components.css -->

@@ -85,7 +85,7 @@
         },
         {
           "anuvaka": 21,
-          "panchasats": 2
+          "panchasats": 3
         },
         {
           "anuvaka": 22,
@@ -421,7 +421,7 @@
         },
         {
           "anuvaka": 15,
-          "panchasats": 9
+          "panchasats": 10
         }
       ]
     },
@@ -863,6 +863,10 @@
         },
         {
           "anuvaka": 28,
+          "panchasats": 1
+        },
+        {
+          "anuvaka": 29,
           "panchasats": 1
         },
         {

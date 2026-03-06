@@ -201,3 +201,79 @@ export function getAllPanchasats(): PanchasatData[] {
   _allPanchasatsCache = allPanchasats;
   return allPanchasats;
 }
+
+// ========================================
+// SVARANUGAMI SYNC DATA
+// ========================================
+
+export interface SyncPhrase {
+  text: string;
+  start: number;
+  end: number;
+}
+
+export interface SyncData {
+  kanda: number;
+  prasna: number;
+  anuvaka: number;
+  panchasat: number;
+  phrases: SyncPhrase[];
+  total_phrases: number;
+}
+
+/**
+ * Load sync data for all Panchasats in an Anuvaka
+ * Returns array of SyncData objects, one per Panchasat
+ */
+export function getAnuvakaSyncData(kanda: number, prasna: number, anuvaka: number): SyncData[] {
+  const syncDir = path.join(process.cwd(), 'src/data/sync');
+  const k = padNumber(kanda);
+  const p = padNumber(prasna);
+  const a = padNumber(anuvaka);
+  const prasnaDir = path.join(syncDir, `K${k}_P${p}`);
+  
+  const syncDataList: SyncData[] = [];
+  
+  try {
+    if (!fs.existsSync(prasnaDir)) return [];
+    
+    const files = fs.readdirSync(prasnaDir)
+      .filter(f => f.startsWith(`K${k}_P${p}_A${a}_PS`) && f.endsWith('.json'))
+      .sort();
+    
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(prasnaDir, file), 'utf-8');
+      syncDataList.push(JSON.parse(content));
+    }
+  } catch (e) {
+    // Sync data not available for this Anuvaka
+  }
+  
+  return syncDataList;
+}
+
+/**
+ * Combine all phrases from multiple Panchasats into a single array
+ * Adjusts timing offsets so phrases are sequential
+ */
+export function combineAnuvakaPhrases(syncDataList: SyncData[]): SyncPhrase[] {
+  const allPhrases: SyncPhrase[] = [];
+  let timeOffset = 0;
+  
+  for (const syncData of syncDataList) {
+    for (const phrase of syncData.phrases) {
+      allPhrases.push({
+        text: phrase.text,
+        start: phrase.start + timeOffset,
+        end: phrase.end + timeOffset
+      });
+    }
+    // Add offset for next Panchasat (use last phrase's end time)
+    if (syncData.phrases.length > 0) {
+      const lastPhrase = syncData.phrases[syncData.phrases.length - 1];
+      timeOffset += lastPhrase.end;
+    }
+  }
+  
+  return allPhrases;
+}

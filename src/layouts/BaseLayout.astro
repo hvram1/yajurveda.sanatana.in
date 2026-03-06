@@ -54,6 +54,7 @@ const texts = [
     <nav class="navbar sticky top-0 z-50">
       <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-center gap-4">
         <a href={base} class="nav-link">मुख्यपृष्ठम्</a>
+        <a href={`${base}parichaya`} class="nav-link">परिचयः</a>
         
         <!-- Text Selector Dropdown -->
         <div class="text-selector-wrapper">
@@ -66,7 +67,7 @@ const texts = [
           <div class="text-dropdown hidden" id="text-dropdown">
             {texts.map(text => (
               <a 
-                href="#" 
+                href={text.path} 
                 class={`text-option ${activeText === text.id ? 'active' : ''}`}
                 data-text={text.id}
                 data-default-path={text.path}

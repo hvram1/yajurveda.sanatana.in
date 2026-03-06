@@ -14,6 +14,10 @@ const kanda = parseInt(verse.classification.kanda);
 const prasna = parseInt(verse.classification.prasna);
 const anuvaka = parseInt(verse.classification.anuvaka);
 const panchasat = parseInt(verse.classification.panchasat);
+
+// Check if bhashyas have actual content (not just empty strings)
+const hasSayanaBhashya = verse.sayanaBhashya && verse.sayanaBhashya.trim().length > 0;
+const hasBhattaBhashya = verse.bhattaBhashya && verse.bhattaBhashya.trim().length > 0;
 ---
 
 <article class="verse-card group" id={`verse-${verse.id.replace(/\s+/g, '-')}`}>
@@ -56,7 +60,7 @@ const panchasat = parseInt(verse.classification.panchasat);
   </footer>
 
   <!-- Sayana Bhashya (if available and showDetails) -->
-  {showDetails && verse.sayanaBhashya && (
+  {showDetails && hasSayanaBhashya && (
     <details class="collapsible mt-4 border-t pt-4">
       <summary class="collapsible-header">
         <span class="collapsible-icon">▶</span>
@@ -69,7 +73,7 @@ const panchasat = parseInt(verse.classification.panchasat);
   )}
 
   <!-- Bhatta Bhashya (if available and showDetails) -->
-  {showDetails && verse.bhattaBhashya && (
+  {showDetails && hasBhattaBhashya && (
     <details class="collapsible mt-4 border-t pt-4">
       <summary class="collapsible-header">
         <span class="collapsible-icon">▶</span>

@@ -1,0 +1,554 @@
+/* ============================================
+   SHARED COMPONENT STYLES
+   ============================================
+   Common styles used across multiple components
+   to reduce duplication and ensure consistency.
+   ============================================ */
+
+/* ============================================
+   NAVIGATION GRIDS (Kanda, Prasna, Anuvaka)
+   ============================================ */
+
+.nav-grid {
+  display: grid;
+  gap: 3px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.nav-grid--4col { grid-template-columns: repeat(4, 1fr); }
+.nav-grid--5col { grid-template-columns: repeat(5, 1fr); }
+.nav-grid--6col { grid-template-columns: repeat(6, 1fr); }
+
+.nav-grid-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
+  background: #f9f9f9;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  color: #666;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.nav-grid-btn:hover {
+  background: var(--color-accent);
+  color: white;
+}
+
+.nav-grid-btn.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Larger buttons for Kanda */
+.nav-grid-btn--lg {
+  padding: 0.5rem;
+  font-weight: 600;
+  color: #555;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .nav-grid--5col,
+  .nav-grid--6col {
+    grid-template-columns: repeat(6, 1fr);
+    max-height: 250px;
+  }
+
+  .nav-grid-btn {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+
+  .nav-grid-btn--lg {
+    padding: 0.6rem;
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: rgba(255, 255, 255, 0.98);
+  border-right: 1px solid #ddd;
+  padding: 1rem;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  position: sticky;
+  top: 60px;
+}
+
+.sidebar-section {
+  margin-bottom: 1.5rem;
+}
+
+.sidebar-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-family: 'AdiShilaVedic', sans-serif;
+}
+
+.sidebar-nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #eee;
+}
+
+.sidebar-nav-links a {
+  padding: 0.3rem 0.6rem;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: 'AdiShilaVedic', serif;
+  color: #666;
+  transition: all 0.15s;
+}
+
+.sidebar-nav-links a:hover {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* ============================================
+   MOBILE SIDEBAR
+   ============================================ */
+
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  align-items: center;
+  justify-content: center;
+}
+
+.hamburger-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 24px;
+}
+
+.hamburger-icon span {
+  display: block;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 998;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+}
+
+.sidebar-close {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  color: #666;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.sidebar-close:hover {
+  color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .sidebar-overlay {
+    display: block;
+    pointer-events: none;
+  }
+
+  .sidebar-overlay.open {
+    pointer-events: auto;
+  }
+
+  .sidebar-close {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    padding-top: 50px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+/* ============================================
+   QUICK JUMP FORM
+   ============================================ */
+
+.quick-jump-form {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.quick-jump-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.quick-jump-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.quick-jump-btn {
+  padding: 0.5rem 0.75rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.quick-jump-btn:hover {
+  background: var(--color-accent);
+}
+
+/* ============================================
+   SEARCH LINK
+   ============================================ */
+
+.search-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #fff 100%);
+  border: 1px solid var(--color-accent);
+  border-radius: 6px;
+  color: var(--color-primary);
+  font-family: 'AdiShilaVedic', serif;
+  font-size: 0.9rem;
+  transition: all 0.15s;
+}
+
+.search-link:hover {
+  background: var(--color-accent);
+  color: white;
+}
+
+.search-link svg {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   PAGE LAYOUT
+   ============================================ */
+
+.page-with-sidebar {
+  display: flex;
+  min-height: calc(100vh - 200px);
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 900px;
+}
+
+@media (max-width: 768px) {
+  .page-with-sidebar {
+    flex-direction: column;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+}
+
+/* ============================================
+   ANUVAKA CARDS (for Prasna page)
+   ============================================ */
+
+.anuvaka-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.anuvaka-card {
+  display: block;
+  position: relative;
+  padding: 1rem 1.25rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid var(--color-accent);
+  border-radius: 8px;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.anuvaka-card:hover {
+  border-left-color: var(--color-primary);
+  background: linear-gradient(135deg, #f0f9ff 0%, #fff 100%);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+.anuvaka-card__number {
+  font-family: 'AdiShilaVedic', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 0.25rem;
+}
+
+.anuvaka-card__meta {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.anuvaka-card__info {
+  font-family: 'AdiShilaVedic', serif;
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .anuvaka-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================
+   ANUVAKA PAGE HEADER
+   ============================================ */
+
+.anuvaka-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.anuvaka-title {
+  font-family: 'AdiShilaVedic', serif;
+  font-size: 1.75rem;
+  color: var(--color-primary);
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.anuvaka-ref {
+  font-size: 1rem;
+  color: #666;
+  font-weight: normal;
+}
+
+.anuvaka-info,
+.korvai-info {
+  font-family: 'AdiShilaVedic', serif;
+  color: #555;
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .anuvaka-title {
+    font-size: 1.4rem;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+/* ============================================
+   PANCHASAT SECTIONS
+   ============================================ */
+
+.panchasats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.panchasat-section {
+  scroll-margin-top: 80px;
+}
+
+.panchasat-anchor-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.panchasat-number {
+  font-family: 'AdiShilaVedic', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.anchor-link {
+  color: #aaa;
+  text-decoration: none;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.panchasat-section:hover .anchor-link {
+  opacity: 1;
+}
+
+.anchor-link:hover {
+  color: var(--color-accent);
+}
+
+/* ============================================
+   NAVIGATION BUTTONS
+   ============================================ */
+
+.nav-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.nav-btn {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-family: 'AdiShilaVedic', serif;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.nav-btn--prev,
+.nav-btn--next {
+  background: var(--color-primary);
+  color: white;
+}
+
+.nav-btn--prev:hover,
+.nav-btn--next:hover {
+  background: var(--color-accent);
+}
+
+.nav-btn--home {
+  background: #f5f5f5;
+  color: var(--color-primary);
+  border: 1px solid #ddd;
+}
+
+.nav-btn--home:hover {
+  background: #e8e8e8;
+}
+
+.nav-btn--disabled {
+  background: #f0f0f0;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .nav-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nav-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ============================================
+   SECTION TITLES
+   ============================================ */
+
+.section-title {
+  font-family: 'AdiShilaVedic', serif;
+  font-size: 1.25rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+/* ============================================
+   AUDIO SECTION
+   ============================================ */
+
+.audio-section {
+  margin-bottom: 2rem;
+}
+
+/* ============================================
+   NO CONTENT STATE
+   ============================================ */
+
+.no-content {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}

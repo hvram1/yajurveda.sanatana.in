@@ -1,0 +1,866 @@
+---
+/**
+ * SvaranugamiOverlay - Synced audio-text player overlay for Yajurveda
+ * 
+ * Highlights phrases in real-time as audio plays
+ * Works at Anuvaka level with phrase-level sync data
+ * Includes bug reporting feature for timing corrections
+ */
+
+interface Phrase {
+  text: string;
+  start: number;
+  end: number;
+}
+
+interface SyncData {
+  kanda: number;
+  prasna: number;
+  anuvaka: number;
+  panchasat: number;
+  phrases: Phrase[];
+  total_phrases: number;
+}
+
+interface Props {
+  syncDataList: SyncData[];
+  audioUrl: string;
+  kanda: number;
+  prasna: number;
+  anuvaka: number;
+}
+
+const { syncDataList, audioUrl, kanda, prasna, anuvaka } = Astro.props;
+
+// Build combined phrases with Panchasat tracking
+interface PhraseWithContext extends Phrase {
+  panchasat: number;
+  phraseIndex: number;
+}
+
+const allPhrases: PhraseWithContext[] = [];
+let timeOffset = 0;
+
+for (const syncData of syncDataList) {
+  for (let i = 0; i < syncData.phrases.length; i++) {
+    const phrase = syncData.phrases[i];
+    allPhrases.push({
+      text: phrase.text,
+      start: phrase.start + timeOffset,
+      end: phrase.end + timeOffset,
+      panchasat: syncData.panchasat,
+      phraseIndex: i + 1
+    });
+  }
+  if (syncData.phrases.length > 0) {
+    const lastPhrase = syncData.phrases[syncData.phrases.length - 1];
+    timeOffset += lastPhrase.end;
+  }
+}
+
+// Serialize for client-side use
+const syncDataJson = JSON.stringify(syncDataList);
+const phrasesJson = JSON.stringify(allPhrases);
+
+// Build title
+const title = `TS ${kanda}.${prasna}.${anuvaka} - स्वरानुगामी`;
+
+// Audio file reference
+const k = String(kanda).padStart(2, '0');
+const p = String(prasna).padStart(2, '0');
+const a = String(anuvaka).padStart(2, '0');
+const audioFileRef = `K${k}_P${p}_A${a}`;
+
+// GitHub repo for issues
+const GITHUB_REPO = 'hvram1/yajurveda.sanatana.in';
+---
+
+<div id="svaranugami-trigger">
+  <button class="svaranugami-btn" id="svaranugami-open-btn">
+    <span class="btn-icon">🎵</span>
+    <span class="btn-text">स्वरानुगामी</span>
+  </button>
+</div>
+
+<div id="svaranugami-overlay" class="sv-overlay sv-hidden">
+  <div class="sv-backdrop" id="sv-backdrop"></div>
+  <div class="sv-content">
+    <header class="sv-header">
+      <h2>{title}</h2>
+      <button class="sv-close-btn" id="sv-close-btn">✕</button>
+    </header>
+
+    <div class="sv-controls">
+      <button class="sv-play-btn" id="sv-play-btn">▶</button>
+      
+      <div class="sv-progress-container">
+        <div class="sv-progress-bar" id="sv-progress-bar">
+          <div class="sv-progress-fill" id="sv-progress-fill"></div>
+        </div>
+        <div class="sv-time-info">
+          <span id="sv-current-time">0:00</span>
+          <span id="sv-total-time">0:00</span>
+        </div>
+      </div>
+
+      <button class="sv-stop-btn" id="sv-stop-btn" title="Stop">⏹</button>
+    </div>
+
+    <div class="sv-phrase-list" id="sv-phrase-list">
+      {allPhrases.map((phrase, i) => (
+        <div 
+          class="sv-phrase" 
+          data-index={i} 
+          data-start={phrase.start} 
+          data-end={phrase.end}
+          data-panchasat={phrase.panchasat}
+          data-phrase-index={phrase.phraseIndex}
+        >
+          <span class="sv-phrase-num">PS{phrase.panchasat}.{phrase.phraseIndex}</span>
+          {phrase.text}
+        </div>
+      ))}
+    </div>
+
+    <!-- Report Issue Footer -->
+    <div class="sv-report-section">
+      <button class="sv-report-btn" id="sv-report-btn" title="Report timing issue">
+        ⚠️ Report Timing Issue
+      </button>
+      <span class="sv-report-hint" id="sv-report-hint"></span>
+    </div>
+
+    <audio id="sv-audio" src={audioUrl} preload="metadata"></audio>
+  </div>
+</div>
+
+<!-- Confirmation Dialog -->
+<div id="sv-confirm-dialog" class="sv-dialog sv-hidden">
+  <div class="sv-dialog-backdrop"></div>
+  <div class="sv-dialog-content">
+    <h3>Report Timing Issue</h3>
+    <p id="sv-confirm-text">Report timing issue for this location?</p>
+    <div class="sv-dialog-buttons">
+      <button class="sv-dialog-btn sv-dialog-cancel" id="sv-confirm-cancel">Cancel</button>
+      <button class="sv-dialog-btn sv-dialog-confirm" id="sv-confirm-ok">Open GitHub Issue</button>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ syncDataJson, phrasesJson, kanda, prasna, anuvaka, audioFileRef, GITHUB_REPO }}>
+  const svSyncDataList = JSON.parse(syncDataJson);
+  const svPhrases = JSON.parse(phrasesJson);
+  let svIsPlaying = false;
+  let svCurrentPhraseIndex = 0;
+
+  // Rate limiting constants
+  const DAILY_LIMIT = 50;
+  const COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
+  const STORAGE_KEY = 'sv_report_data';
+  const CONFIRM_SKIP_COUNT = 3; // Show confirmation only for first N reports per day
+
+  // DOM elements
+  const overlay = document.getElementById('svaranugami-overlay');
+  const audio = document.getElementById('sv-audio');
+  const playBtn = document.getElementById('sv-play-btn');
+  const progressFill = document.getElementById('sv-progress-fill');
+  const currentTimeEl = document.getElementById('sv-current-time');
+  const totalTimeEl = document.getElementById('sv-total-time');
+  const reportHint = document.getElementById('sv-report-hint');
+  const confirmDialog = document.getElementById('sv-confirm-dialog');
+
+  // ========================================
+  // Rate Limiting Functions
+  // ========================================
+  
+  function getReportData() {
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const today = new Date().toDateString();
+      if (data.date !== today) {
+        return { date: today, count: 0, lastReport: 0 };
+      }
+      return data;
+    } catch {
+      return { date: new Date().toDateString(), count: 0, lastReport: 0 };
+    }
+  }
+
+  function saveReportData(data) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch {}
+  }
+
+  function canReport() {
+    const data = getReportData();
+    const now = Date.now();
+    
+    // Check daily limit
+    if (data.count >= DAILY_LIMIT) {
+      return { allowed: false, reason: `Daily limit reached (${DAILY_LIMIT} reports)` };
+    }
+    
+    // Check cooldown
+    const timeSinceLastReport = now - (data.lastReport || 0);
+    if (timeSinceLastReport < COOLDOWN_MS) {
+      const waitSecs = Math.ceil((COOLDOWN_MS - timeSinceLastReport) / 1000);
+      return { allowed: false, reason: `Please wait ${waitSecs}s before reporting again` };
+    }
+    
+    return { allowed: true };
+  }
+
+  function recordReport() {
+    const data = getReportData();
+    data.count++;
+    data.lastReport = Date.now();
+    saveReportData(data);
+  }
+
+  function updateReportHint() {
+    const check = canReport();
+    if (!check.allowed && reportHint) {
+      reportHint.textContent = check.reason;
+      reportHint.style.display = 'block';
+    } else if (reportHint) {
+      reportHint.style.display = 'none';
+    }
+  }
+
+  function shouldShowConfirmation() {
+    const data = getReportData();
+    // Show confirmation only for first N reports of the day
+    return data.count < CONFIRM_SKIP_COUNT;
+  }
+
+  // ========================================
+  // Issue URL Builder
+  // ========================================
+
+  function buildIssueUrl() {
+    // Find current Panchasat based on current phrase
+    let currentPs = 1;
+    if (svCurrentPhraseIndex >= 0 && svCurrentPhraseIndex < svPhrases.length) {
+      currentPs = svPhrases[svCurrentPhraseIndex].panchasat;
+    }
+
+    // Get sync data for current Panchasat
+    const currentSyncData = svSyncDataList.find(s => s.panchasat === currentPs);
+    
+    // Build title
+    const humanRef = `TS ${kanda}.${prasna}.${anuvaka}.${currentPs}`;
+    const fileRef = `${audioFileRef}_PS${String(currentPs).padStart(2, '0')}`;
+    const title = `[Sync] ${humanRef} | ${fileRef} - Timing issue`;
+
+    // Build phrase table rows for current Panchasat
+    const NL = '\n';
+    let phraseTable = '';
+    if (currentSyncData) {
+      currentSyncData.phrases.forEach((p, i) => {
+        const textPreview = p.text.length > 40 ? p.text.substring(0, 40) + '...' : p.text;
+        phraseTable += '| ' + (i + 1) + ' | ' + textPreview + ' | ' + p.start.toFixed(2) + 's | ' + p.end.toFixed(2) + 's | |' + NL;
+      });
+    }
+
+    // Build body using array join to avoid escaping issues
+    const bodyLines = [
+      '**Location:** ' + humanRef + ' (Kanda ' + kanda + ', Prasna ' + prasna + ', Anuvaka ' + anuvaka + ', Panchasat ' + currentPs + ')',
+      '**Audio File:** ' + audioFileRef + '.mp3',
+      '**Sync File:** ' + fileRef + '.json',
+      '',
+      '> **How to report:** Edit the table below. Add comments in the Notes column.',
+      '> Common issues: starts early/late, ends early/late, wrong text',
+      '',
+      '| # | Text | Start | End | Notes |',
+      '|---|------|-------|-----|-------|',
+      phraseTable,
+      '',
+      '**Additional comments:**',
+      ''
+    ];
+    const body = bodyLines.join(NL);
+
+    // Encode for URL
+    const encodedTitle = encodeURIComponent(title);
+    const encodedBody = encodeURIComponent(body);
+    const labels = encodeURIComponent('sync-correction');
+
+    return `https://github.com/${GITHUB_REPO}/issues/new?title=${encodedTitle}&body=${encodedBody}&labels=${labels}`;
+  }
+
+  // ========================================
+  // Report Button Handler
+  // ========================================
+
+  function doReport() {
+    recordReport();
+    updateReportHint();
+    window.open(buildIssueUrl(), '_blank');
+  }
+
+  document.getElementById('sv-report-btn')?.addEventListener('click', () => {
+    const check = canReport();
+    if (!check.allowed) {
+      alert(check.reason);
+      return;
+    }
+
+    // Skip confirmation after first few reports
+    if (!shouldShowConfirmation()) {
+      doReport();
+      return;
+    }
+
+    // Find current Panchasat
+    let currentPs = 1;
+    if (svCurrentPhraseIndex >= 0 && svCurrentPhraseIndex < svPhrases.length) {
+      currentPs = svPhrases[svCurrentPhraseIndex].panchasat;
+    }
+
+    // Show confirmation for first few reports
+    const confirmText = document.getElementById('sv-confirm-text');
+    if (confirmText) {
+      confirmText.textContent = `Report timing issue for TS ${kanda}.${prasna}.${anuvaka}.${currentPs}?`;
+    }
+    confirmDialog?.classList.remove('sv-hidden');
+  });
+
+  document.getElementById('sv-confirm-cancel')?.addEventListener('click', () => {
+    confirmDialog?.classList.add('sv-hidden');
+  });
+
+  document.getElementById('sv-confirm-ok')?.addEventListener('click', () => {
+    confirmDialog?.classList.add('sv-hidden');
+    doReport();
+  });
+
+  // Close dialog on backdrop click
+  confirmDialog?.querySelector('.sv-dialog-backdrop')?.addEventListener('click', () => {
+    confirmDialog?.classList.add('sv-hidden');
+  });
+
+  // ========================================
+  // Player Functions
+  // ========================================
+
+  // Open overlay
+  document.getElementById('svaranugami-open-btn')?.addEventListener('click', () => {
+    overlay?.classList.remove('sv-hidden');
+    document.body.style.overflow = 'hidden';
+    updateReportHint();
+  });
+
+  // Close overlay
+  function closeOverlay() {
+    overlay?.classList.add('sv-hidden');
+    document.body.style.overflow = '';
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    svIsPlaying = false;
+    if (playBtn) playBtn.textContent = '▶';
+    resetHighlighting();
+  }
+
+  document.getElementById('sv-close-btn')?.addEventListener('click', closeOverlay);
+  document.getElementById('sv-backdrop')?.addEventListener('click', closeOverlay);
+
+  // Play/Pause toggle
+  document.getElementById('sv-play-btn')?.addEventListener('click', () => {
+    if (!audio) return;
+    
+    if (svIsPlaying) {
+      audio.pause();
+      svIsPlaying = false;
+      if (playBtn) playBtn.textContent = '▶';
+    } else {
+      audio.play();
+      svIsPlaying = true;
+      if (playBtn) playBtn.textContent = '⏸';
+    }
+  });
+
+  // Stop
+  document.getElementById('sv-stop-btn')?.addEventListener('click', () => {
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+    svIsPlaying = false;
+    if (playBtn) playBtn.textContent = '▶';
+    resetHighlighting();
+    updateProgress(0);
+  });
+
+  // Progress bar click to seek
+  document.getElementById('sv-progress-bar')?.addEventListener('click', (e) => {
+    if (!audio || !audio.duration) return;
+    const bar = e.currentTarget;
+    const rect = bar.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = percent * audio.duration;
+  });
+
+  // Audio metadata loaded
+  audio?.addEventListener('loadedmetadata', () => {
+    if (totalTimeEl && audio.duration) {
+      totalTimeEl.textContent = formatTime(audio.duration);
+    }
+  });
+
+  // Time update - highlight phrases
+  audio?.addEventListener('timeupdate', () => {
+    const currentTime = audio.currentTime;
+    updateProgress(currentTime);
+    highlightPhrase(currentTime);
+  });
+
+  // Audio ended
+  audio?.addEventListener('ended', () => {
+    svIsPlaying = false;
+    if (playBtn) playBtn.textContent = '▶';
+    document.querySelectorAll('.sv-phrase').forEach(el => {
+      el.classList.remove('active');
+      el.classList.add('past');
+    });
+  });
+
+  // Update progress bar
+  function updateProgress(currentTime) {
+    if (!audio || !audio.duration) return;
+    const percent = (currentTime / audio.duration) * 100;
+    if (progressFill) progressFill.style.width = `${percent}%`;
+    if (currentTimeEl) currentTimeEl.textContent = formatTime(currentTime);
+  }
+
+  // Highlight current phrase
+  function highlightPhrase(currentTime) {
+    document.querySelectorAll('.sv-phrase').forEach((el, i) => {
+      const start = parseFloat(el.dataset.start || '0');
+      const end = parseFloat(el.dataset.end || '0');
+      
+      el.classList.remove('active', 'past');
+      
+      if (currentTime >= start && currentTime < end) {
+        el.classList.add('active');
+        svCurrentPhraseIndex = i;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (currentTime >= end) {
+        el.classList.add('past');
+      }
+    });
+  }
+
+  // Reset highlighting
+  function resetHighlighting() {
+    document.querySelectorAll('.sv-phrase').forEach(el => {
+      el.classList.remove('active', 'past');
+    });
+    svCurrentPhraseIndex = 0;
+  }
+
+  // Format time as M:SS
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  // Click on phrase to seek
+  document.querySelectorAll('.sv-phrase').forEach(el => {
+    el.addEventListener('click', () => {
+      if (!audio) return;
+      const start = parseFloat(el.dataset.start || '0');
+      audio.currentTime = start;
+      if (!svIsPlaying) {
+        audio.play();
+        svIsPlaying = true;
+        if (playBtn) playBtn.textContent = '⏸';
+      }
+    });
+  });
+
+  // Update hint periodically (for cooldown countdown)
+  setInterval(updateReportHint, 5000);
+</script>
+
+<style>
+  /* Trigger button */
+  #svaranugami-trigger {
+    margin: 1rem 0;
+  }
+
+  .svaranugami-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, var(--color-golden, #c9a227), var(--color-primary));
+    color: white;
+    border: none;
+    border-radius: 2rem;
+    font-family: 'AdiShilaVedic', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+  }
+
+  .svaranugami-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  }
+
+  .btn-icon {
+    font-size: 1.25rem;
+  }
+
+  /* Overlay */
+  .sv-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sv-overlay.sv-hidden {
+    display: none;
+  }
+
+  .sv-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .sv-content {
+    position: relative;
+    width: 90%;
+    max-width: 700px;
+    max-height: 85vh;
+    background: linear-gradient(180deg, #0a3d3d 0%, #062828 100%);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(46, 139, 139, 0.3);
+  }
+
+  .sv-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(46, 139, 139, 0.3);
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .sv-header h2 {
+    color: var(--color-accent, #2e8b8b);
+    font-family: 'AdiShilaVedic', serif;
+    font-size: 1.25rem;
+    margin: 0;
+  }
+
+  .sv-close-btn {
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: 1px solid rgba(46, 139, 139, 0.5);
+    color: var(--color-accent, #2e8b8b);
+    border-radius: 50%;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sv-close-btn:hover {
+    background: rgba(46, 139, 139, 0.2);
+  }
+
+  /* Controls */
+  .sv-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .sv-play-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-accent, #2e8b8b);
+    border: none;
+    color: white;
+    font-size: 1.25rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .sv-play-btn:hover {
+    background: var(--color-primary, #0d6e6e);
+    transform: scale(1.05);
+  }
+
+  .sv-stop-btn {
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: 1px solid rgba(46, 139, 139, 0.5);
+    color: var(--color-accent, #2e8b8b);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .sv-stop-btn:hover {
+    background: rgba(46, 139, 139, 0.2);
+  }
+
+  .sv-progress-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sv-progress-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .sv-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent, #2e8b8b), var(--color-primary, #0d6e6e));
+    width: 0%;
+    transition: width 0.1s linear;
+    border-radius: 4px;
+  }
+
+  .sv-time-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  /* Phrase list */
+  .sv-phrase-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .sv-phrase {
+    font-family: 'AdiShilaVedic', serif;
+    font-size: 1.3rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+    position: relative;
+  }
+
+  .sv-phrase-num {
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+
+  .sv-phrase:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .sv-phrase.active {
+    color: white;
+    background: rgba(46, 139, 139, 0.3);
+    border-left-color: var(--color-accent, #2e8b8b);
+    transform: scale(1.02);
+  }
+
+  .sv-phrase.active .sv-phrase-num {
+    background: var(--color-accent, #2e8b8b);
+    color: white;
+  }
+
+  .sv-phrase.past {
+    opacity: 0.4;
+  }
+
+  /* Report Section */
+  .sv-report-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 1px solid rgba(46, 139, 139, 0.2);
+  }
+
+  .sv-report-btn {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid rgba(255, 193, 7, 0.5);
+    color: #ffc107;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  .sv-report-btn:hover {
+    background: rgba(255, 193, 7, 0.15);
+    border-color: #ffc107;
+  }
+
+  .sv-report-hint {
+    font-size: 0.75rem;
+    color: rgba(255, 193, 7, 0.7);
+    display: none;
+  }
+
+  /* Confirmation Dialog */
+  .sv-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sv-dialog.sv-hidden {
+    display: none;
+  }
+
+  .sv-dialog-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  .sv-dialog-content {
+    position: relative;
+    background: #1a2f2f;
+    border-radius: 8px;
+    padding: 1.5rem;
+    max-width: 400px;
+    width: 90%;
+    border: 1px solid rgba(46, 139, 139, 0.3);
+  }
+
+  .sv-dialog-content h3 {
+    margin: 0 0 1rem;
+    color: var(--color-accent, #2e8b8b);
+    font-size: 1.1rem;
+  }
+
+  .sv-dialog-content p {
+    margin: 0 0 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+  }
+
+  .sv-dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
+
+  .sv-dialog-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .sv-dialog-cancel {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .sv-dialog-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .sv-dialog-confirm {
+    background: var(--color-accent, #2e8b8b);
+    border: none;
+    color: white;
+  }
+
+  .sv-dialog-confirm:hover {
+    background: var(--color-primary, #0d6e6e);
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .sv-content {
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+      border-radius: 0;
+    }
+
+    .sv-phrase {
+      font-size: 1.1rem;
+      padding: 0.6rem 0.8rem;
+    }
+
+    .svaranugami-btn {
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .sv-controls {
+      flex-wrap: wrap;
+    }
+
+    .sv-progress-container {
+      order: 3;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+
+    .sv-report-section {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+</style>
