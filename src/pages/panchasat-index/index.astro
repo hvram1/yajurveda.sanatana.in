@@ -13,7 +13,7 @@ const panchasatIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
 // Filter out special characters, keep only Devanagari letters
 const devanagariLetters = Object.keys(panchasatIndex).filter(letter => {
   const code = letter.charCodeAt(0);
-  return code >= 0x0905 && code <= 0x0939; // अ to ह
+  return code >= 0x0905 && code <= 0x0939; // all devanagari characters
 });
 
 // Group by category
