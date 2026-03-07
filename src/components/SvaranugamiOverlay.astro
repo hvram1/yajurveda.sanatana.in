@@ -436,20 +436,46 @@ const GITHUB_REPO = 'hvram1/yajurveda.sanatana.in';
 
   // Highlight current phrase
   function highlightPhrase(currentTime) {
-    document.querySelectorAll('.sv-phrase').forEach((el, i) => {
+    const phrases = document.querySelectorAll('.sv-phrase');
+    let activeFound = false;
+    
+    phrases.forEach((el, i) => {
       const start = parseFloat(el.dataset.start || '0');
       const end = parseFloat(el.dataset.end || '0');
       
       el.classList.remove('active', 'past');
       
+      // Handle zero-duration phrases (like continuation markers [ ])
+      // Skip them and treat as past if we've passed their time
+      if (start === end) {
+        if (currentTime >= start) {
+          el.classList.add('past');
+        }
+        return;
+      }
+      
       if (currentTime >= start && currentTime < end) {
         el.classList.add('active');
         svCurrentPhraseIndex = i;
+        activeFound = true;
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else if (currentTime >= end) {
         el.classList.add('past');
       }
     });
+    
+    // If no active phrase found and we're still playing, find the next upcoming phrase
+    // This handles gaps between phrases
+    if (!activeFound && svIsPlaying) {
+      for (let i = 0; i < phrases.length; i++) {
+        const el = phrases[i];
+        const start = parseFloat(el.dataset.start || '0');
+        if (currentTime < start) {
+          svCurrentPhraseIndex = i;
+          break;
+        }
+      }
+    }
   }
 
   // Reset highlighting

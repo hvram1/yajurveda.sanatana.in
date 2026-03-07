@@ -321,6 +321,25 @@ details[open] .collapsible-icon {
   transform: rotate(90deg);
 }
 
+/* Bhashya-specific header styles */
+.sayana-header {
+  color: #b45309;
+}
+.sayana-header:hover {
+  color: #92400e;
+}
+.bhatta-header {
+  color: #1e40af;
+}
+.bhatta-header:hover {
+  color: #1e3a8a;
+}
+.bhashya-content {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
 /* Prose for commentary */
 .prose { 
   max-width: 65ch; 

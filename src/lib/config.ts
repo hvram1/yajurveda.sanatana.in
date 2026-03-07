@@ -3,13 +3,14 @@
 // ========================================
 
 // Set to true for Cloudflare, false for local testing
-export const USE_CLOUDFLARE_AUDIO = false;
+export const USE_CLOUDFLARE_AUDIO = true;
 
 // Base URLs for audio files
-const CLOUDFLARE_AUDIO_BASE = 'https://yajurveda-audio.rigveda.workers.dev/audio/splits';
+// Worker URL: https://veda-audio.<subdomain>.workers.dev/yajurveda/splits
+const CLOUDFLARE_AUDIO_BASE = 'https://veda-audio.secretary-e89.workers.dev/yajurveda/splits';
 
 // Legacy: Prasna-level audio (full Prasna recordings)
-const CLOUDFLARE_PRASNA_AUDIO = 'https://yajurveda-audio.rigveda.workers.dev/audio/MP3';
+const CLOUDFLARE_PRASNA_AUDIO = 'https://yajurveda-audio.secretary-e89.workers.dev/audio/MP3';
 
 // NEW: Get audio URL for an Anuvaka (individual file per Anuvaka)
 // For local: uses import.meta.env.BASE_URL to include the site's base path

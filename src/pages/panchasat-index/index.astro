@@ -7,13 +7,13 @@ import path from 'path';
 const base = import.meta.env.BASE_URL;
 
 // Load panchasat index
-const indexPath = path.join(process.cwd(), 'src/data/panchasat-index.json');
-const panchasatIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+const indexPath = path.join(process.cwd(), "src/data/panchasat-index.json");
+const panchasatIndex = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
 
 // Filter out special characters, keep only Devanagari letters
 const devanagariLetters = Object.keys(panchasatIndex).filter(letter => {
   const code = letter.charCodeAt(0);
-  return code >= 0x0905 && code <= 0x0939; // all devanagari characters
+  return code >= 0x0905 && code <= 0x0939; // Devanagari letters range
 });
 
 // Group by category

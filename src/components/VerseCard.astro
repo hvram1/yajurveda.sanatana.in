@@ -1,5 +1,6 @@
 ---
 import type { PanchasatData } from '../lib/utils';
+import BhashyaFormatter from './BhashyaFormatter.astro';
 
 interface Props {
   verse: PanchasatData;
@@ -62,12 +63,12 @@ const hasBhattaBhashya = verse.bhattaBhashya && verse.bhattaBhashya.trim().lengt
   <!-- Sayana Bhashya (if available and showDetails) -->
   {showDetails && hasSayanaBhashya && (
     <details class="collapsible mt-4 border-t pt-4">
-      <summary class="collapsible-header">
+      <summary class="collapsible-header sayana-header">
         <span class="collapsible-icon">▶</span>
         सायणभाष्यम् (Sayana Commentary)
       </summary>
-      <div class="mt-3 prose prose-teal max-w-none text-sm whitespace-pre-wrap">
-        {verse.sayanaBhashya}
+      <div class="mt-3 bhashya-content">
+        <BhashyaFormatter text={verse.sayanaBhashya} type="sayana" />
       </div>
     </details>
   )}
@@ -75,12 +76,12 @@ const hasBhattaBhashya = verse.bhattaBhashya && verse.bhattaBhashya.trim().lengt
   <!-- Bhatta Bhashya (if available and showDetails) -->
   {showDetails && hasBhattaBhashya && (
     <details class="collapsible mt-4 border-t pt-4">
-      <summary class="collapsible-header">
+      <summary class="collapsible-header bhatta-header">
         <span class="collapsible-icon">▶</span>
         भट्टभास्करभाष्यम् (Bhatta Bhaskara Commentary)
       </summary>
-      <div class="mt-3 prose prose-teal max-w-none text-sm whitespace-pre-wrap">
-        {verse.bhattaBhashya}
+      <div class="mt-3 bhashya-content">
+        <BhashyaFormatter text={verse.bhattaBhashya} type="bhatta" />
       </div>
     </details>
   )}

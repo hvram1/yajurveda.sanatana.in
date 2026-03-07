@@ -1,0 +1,185 @@
+---
+/**
+ * BhashyaFormatter - Formats Sanskrit commentary text with proper structure
+ * 
+ * Parses bhashya text and applies formatting:
+ * - Paragraph breaks
+ * - Verse numbers (॥१॥)
+ * - Section endings (इति...॥)
+ * - Numbered sections
+ * - Citations in parentheses
+ */
+
+interface Props {
+  text: string;
+  type: 'sayana' | 'bhatta';
+}
+
+const { text, type } = Astro.props;
+
+interface FormattedSegment {
+  type: 'paragraph' | 'verse-marker' | 'colophon' | 'section-heading' | 'citation';
+  content: string;
+  number?: string;
+}
+
+function formatBhashya(rawText: string, bhashyaType: string): FormattedSegment[] {
+  if (!rawText || rawText.trim().length === 0) {
+    return [];
+  }
+
+  const segments: FormattedSegment[] = [];
+  const paragraphs = rawText.split('\n').filter(p => p.trim().length > 0);
+
+  for (const para of paragraphs) {
+    const trimmed = para.trim();
+    
+    // Check for verse markers like ॥१॥ or ॥ १ ॥
+    if (/^॥\s*[०-९१-९0-9]+\s*॥$/.test(trimmed)) {
+      segments.push({ type: 'verse-marker', content: trimmed });
+      continue;
+    }
+
+    // Check for colophon (इति...॥) - section endings
+    if (/^इति\s+श्रीमत्सायणाचार्य/.test(trimmed) || 
+        /^इति\s+पञ्चमे/.test(trimmed) ||
+        /^इति.*॥\s*$/.test(trimmed)) {
+      segments.push({ type: 'colophon', content: trimmed });
+      continue;
+    }
+
+    // Check for numbered section headings (BhattaBhaskara style)
+    // Lines starting with digits like "1देवाश्चासुराश्च" or "२ अथ"
+    const numberedMatch = trimmed.match(/^([०-९१-९0-9]+)\s*(.+)$/);
+    if (numberedMatch && numberedMatch[2].length > 10) {
+      segments.push({ 
+        type: 'section-heading', 
+        content: numberedMatch[2],
+        number: numberedMatch[1]
+      });
+      continue;
+    }
+
+    // Check for section intro (अथ ... प्रपाठकः, अनुवाकः etc.)
+    if (/^(अथ\s+|॥\s*अथ)/.test(trimmed) && trimmed.length < 100) {
+      segments.push({ type: 'section-heading', content: trimmed });
+      continue;
+    }
+
+    // Regular paragraph
+    segments.push({ type: 'paragraph', content: trimmed });
+  }
+
+  return segments;
+}
+
+const segments = formatBhashya(text, type);
+const themeClass = type === 'sayana' ? 'sayana-theme' : 'bhatta-theme';
+---
+
+<div class={`bhashya-formatted ${themeClass}`}>
+  {segments.map((seg, i) => {
+    switch (seg.type) {
+      case 'verse-marker':
+        return <div class="bhashya-verse-marker">{seg.content}</div>;
+      
+      case 'colophon':
+        return <div class="bhashya-colophon">{seg.content}</div>;
+      
+      case 'section-heading':
+        return (
+          <div class="bhashya-section-heading">
+            {seg.number && <span class="section-number">{seg.number}</span>}
+            <span class="section-text">{seg.content}</span>
+          </div>
+        );
+      
+      case 'paragraph':
+      default:
+        return <p class="bhashya-para">{seg.content}</p>;
+    }
+  })}
+</div>
+
+<style>
+  .bhashya-formatted {
+    font-family: 'Siddhanta', 'Noto Sans Devanagari', serif;
+    font-size: 1rem;
+    line-height: 1.9;
+    color: #1a1a1a;
+  }
+
+  /* Sayana theme - warm tones */
+  .sayana-theme {
+    --accent-color: #b45309;
+    --accent-bg: #fef3c7;
+    --accent-border: #f59e0b;
+  }
+
+  /* BhattaBhaskara theme - cool tones */
+  .bhatta-theme {
+    --accent-color: #1e40af;
+    --accent-bg: #dbeafe;
+    --accent-border: #3b82f6;
+  }
+
+  .bhashya-para {
+    margin: 0 0 1rem 0;
+    text-align: justify;
+    text-indent: 1.5em;
+  }
+
+  .bhashya-para:first-of-type {
+    text-indent: 0;
+  }
+
+  .bhashya-verse-marker {
+    text-align: center;
+    color: var(--accent-color);
+    font-size: 1.1rem;
+    margin: 1.5rem 0;
+    font-weight: 500;
+  }
+
+  .bhashya-colophon {
+    margin: 2rem 0 1rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(to right, var(--accent-bg), transparent);
+    border-left: 3px solid var(--accent-border);
+    font-style: italic;
+    color: #4a4a4a;
+    font-size: 0.95rem;
+  }
+
+  .bhashya-section-heading {
+    margin: 1.5rem 0 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e5e5e5;
+    color: var(--accent-color);
+    font-weight: 600;
+  }
+
+  .section-number {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    text-align: center;
+    background: var(--accent-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    margin-right: 0.75rem;
+    vertical-align: middle;
+  }
+
+  .section-text {
+    vertical-align: middle;
+  }
+
+  /* Highlight citations within text */
+  .bhashya-formatted :global(.citation) {
+    color: #6b7280;
+    font-size: 0.9em;
+  }
+</style>
