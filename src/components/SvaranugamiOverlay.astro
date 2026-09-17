@@ -7,10 +7,16 @@
  * Includes bug reporting feature for timing corrections
  */
 
+interface Word {
+  text: string;
+  start: number;
+}
+
 interface Phrase {
   text: string;
   start: number;
   end: number;
+  words?: Word[];   // optional: word starts from forced alignment
 }
 
 interface SyncData {
@@ -38,23 +44,22 @@ interface PhraseWithContext extends Phrase {
   phraseIndex: number;
 }
 
+// Phrase times are seconds from the start of the Anuvaka mp3 in every
+// Panchasat file, so they are used as they stand. Adding each Panchasat's
+// last end time here double-counted from Panchasat 2 onwards.
 const allPhrases: PhraseWithContext[] = [];
-let timeOffset = 0;
 
 for (const syncData of syncDataList) {
   for (let i = 0; i < syncData.phrases.length; i++) {
     const phrase = syncData.phrases[i];
     allPhrases.push({
       text: phrase.text,
-      start: phrase.start + timeOffset,
-      end: phrase.end + timeOffset,
+      start: phrase.start,
+      end: phrase.end,
+      words: phrase.words,
       panchasat: syncData.panchasat,
       phraseIndex: i + 1
     });
-  }
-  if (syncData.phrases.length > 0) {
-    const lastPhrase = syncData.phrases[syncData.phrases.length - 1];
-    timeOffset += lastPhrase.end;
   }
 }
 
@@ -117,7 +122,11 @@ const GITHUB_REPO = 'hvram1/yajurveda.sanatana.in';
           data-phrase-index={phrase.phraseIndex}
         >
           <span class="sv-phrase-num">PS{phrase.panchasat}.{phrase.phraseIndex}</span>
-          {phrase.text}
+          {phrase.words
+            ? phrase.words.map((w, j) => (
+                <Fragment>{j > 0 && ' '}<span class="sv-word" data-start={w.start}>{w.text}</span></Fragment>
+              ))
+            : phrase.text}
         </div>
       ))}
     </div>
@@ -414,7 +423,48 @@ const GITHUB_REPO = 'hvram1/yajurveda.sanatana.in';
     const currentTime = audio.currentTime;
     updateProgress(currentTime);
     highlightPhrase(currentTime);
+    highlightWord(currentTime);
   });
+
+  // Words need finer steps than timeupdate's ~250ms, so follow the clock
+  // every frame while playing.
+  let svWordFrame = 0;
+  function followWords() {
+    highlightWord(audio.currentTime);
+    svWordFrame = requestAnimationFrame(followWords);
+  }
+  audio?.addEventListener('play', () => {
+    cancelAnimationFrame(svWordFrame);
+    svWordFrame = requestAnimationFrame(followWords);
+  });
+  audio?.addEventListener('pause', () => cancelAnimationFrame(svWordFrame));
+
+  // A word stays lit from its start until the next word starts, and only
+  // inside the active phrase, so it never goes dark mid-phrase.
+  let svActiveWord = null;
+  const svTimed = [...document.querySelectorAll('.sv-phrase')].map(el => ({
+    el,
+    start: parseFloat(el.dataset.start || '0'),
+    end: parseFloat(el.dataset.end || '0'),
+    words: [...el.querySelectorAll('.sv-word')].map(w => ({ w, start: parseFloat(w.dataset.start || '0') })),
+  }));
+  function highlightWord(currentTime) {
+    // Find the phrase by the clock, not by the .active class, which only
+    // moves on timeupdate; bring the phrase along when it has fallen behind.
+    const cur = svTimed.find(p => p.end > p.start && currentTime >= p.start && currentTime < p.end);
+    if (cur && !cur.el.classList.contains('active')) highlightPhrase(currentTime);
+    let next = null;
+    if (cur) {
+      for (const x of cur.words) {
+        if (x.start <= currentTime) next = x.w;
+        else break;
+      }
+    }
+    if (next === svActiveWord) return;
+    svActiveWord?.classList.remove('sv-word-active');
+    next?.classList.add('sv-word-active');
+    svActiveWord = next;
+  }
 
   // Audio ended
   audio?.addEventListener('ended', () => {
@@ -483,6 +533,7 @@ const GITHUB_REPO = 'hvram1/yajurveda.sanatana.in';
     document.querySelectorAll('.sv-phrase').forEach(el => {
       el.classList.remove('active', 'past');
     });
+    highlightWord(-1);
     svCurrentPhraseIndex = 0;
   }
 
@@ -738,6 +789,18 @@ const GITHUB_REPO = 'hvram1/yajurveda.sanatana.in';
 
   .sv-phrase.past {
     opacity: 0.4;
+  }
+
+  /* Current word inside the active phrase: colour only. No box, weight or
+     size change (no reflow), and no underline, which would collide with the
+     anudatta marks below the line. */
+  .sv-phrase.active .sv-word {
+    color: rgba(255, 255, 255, 0.72);
+    transition: color 0.12s;
+  }
+
+  .sv-phrase.active .sv-word.sv-word-active {
+    color: #ffc857;
   }
 
   /* Report Section */
