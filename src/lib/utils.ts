@@ -20,6 +20,15 @@ export interface PanchasatData {
     chandas: string;
   };
   sayanaBhashya?: string;
+  // docx | joint | not_in_source — see complete_pipeline_yajurveda/stage4_integration/ts_bhashya.py
+  sayanaGrade?: 'docx' | 'joint' | 'not_in_source';
+  sayanaJoint?: {
+    head: string;
+    members: string[];
+    grade: string;
+    evidence: string;
+    heading: string;
+  };
   bhattaBhashya?: string;
 }
 

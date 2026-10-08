@@ -19,6 +19,15 @@ const panchasat = parseInt(verse.classification.panchasat);
 // Check if bhashyas have actual content (not just empty strings)
 const hasSayanaBhashya = verse.sayanaBhashya && verse.sayanaBhashya.trim().length > 0;
 const hasBhattaBhashya = verse.bhattaBhashya && verse.bhattaBhashya.trim().length > 0;
+
+// Sāyaṇa comments on some anuvākas together; the text lives on the head's page.
+const sayanaJoint = verse.sayanaJoint;
+const isJointHead = sayanaJoint && sayanaJoint.head === `${kanda}.${prasna}.${anuvaka}`;
+const anuvakaHref = (tag: string) => {
+  const [k, p, a] = tag.split('.');
+  return `${base}panchasat/${k}/${p}/${a}/1`;
+};
+const sayanaMissing = verse.sayanaGrade === 'not_in_source';
 ---
 
 <article class="verse-card group" id={`verse-${verse.id.replace(/\s+/g, '-')}`}>
@@ -61,16 +70,37 @@ const hasBhattaBhashya = verse.bhattaBhashya && verse.bhattaBhashya.trim().lengt
   </footer>
 
   <!-- Sayana Bhashya (if available and showDetails) -->
-  {showDetails && hasSayanaBhashya && (
+  {showDetails && (hasSayanaBhashya || sayanaJoint) && (
     <details class="collapsible mt-4 border-t pt-4">
       <summary class="collapsible-header sayana-header">
         <span class="collapsible-icon">▶</span>
         सायणभाष्यम् (Sayana Commentary)
       </summary>
-      <div class="mt-3 bhashya-content">
-        <BhashyaFormatter text={verse.sayanaBhashya} type="sayana" />
-      </div>
+      {sayanaJoint && (
+        <p class="mt-3 text-sm text-gray-600 joint-note">
+          {isJointHead ? (
+            <>Sāyaṇa comments on this anuvāka together with{' '}
+              {sayanaJoint.members.map((m, i) => (
+                <>{i > 0 && ', '}<a href={anuvakaHref(m)} class="text-primary hover:text-accent">{m}</a></>
+              ))}.</>
+          ) : (
+            <>Sāyaṇa comments on this anuvāka together with others; the commentary is on{' '}
+              <a href={anuvakaHref(sayanaJoint.head)} class="text-primary hover:text-accent">TS {sayanaJoint.head}</a>.</>
+          )}
+          {!isJointHead && sayanaJoint.heading && <span class="block sanskrit-text mt-1">{sayanaJoint.heading}</span>}
+        </p>
+      )}
+      {hasSayanaBhashya && (
+        <div class="mt-3 bhashya-content">
+          <BhashyaFormatter text={verse.sayanaBhashya} type="sayana" />
+        </div>
+      )}
     </details>
+  )}
+  {showDetails && sayanaMissing && (
+    <p class="mt-4 border-t pt-4 text-sm text-gray-500">
+      सायणभाष्यम् — not in the source edition available to this site for this anuvāka.
+    </p>
   )}
 
   <!-- Bhatta Bhashya (if available and showDetails) -->
