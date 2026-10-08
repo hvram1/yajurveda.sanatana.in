@@ -28,6 +28,13 @@ const anuvakaHref = (tag: string) => {
   return `${base}panchasat/${k}/${p}/${a}/1`;
 };
 const sayanaMissing = verse.sayanaGrade === 'not_in_source';
+const sayanaSilent = verse.sayanaGrade === 'not_commented';
+
+const bhattaJoint = verse.bhattaJoint;
+const isBhattaJointHead = bhattaJoint && bhattaJoint.head === `${kanda}.${prasna}.${anuvaka}`;
+const bhattaMissing = verse.bhattaGrade === 'not_in_source';
+// The commentator says he does not comment here; bhattaNote carries his statement.
+const bhattaSilent = verse.bhattaGrade === 'not_commented';
 ---
 
 <article class="verse-card group" id={`verse-${verse.id.replace(/\s+/g, '-')}`}>
@@ -102,17 +109,48 @@ const sayanaMissing = verse.sayanaGrade === 'not_in_source';
       सायणभाष्यम् — not in the source edition available to this site for this anuvāka.
     </p>
   )}
+  {showDetails && sayanaSilent && (
+    <p class="mt-4 border-t pt-4 text-sm text-gray-500">
+      सायणभाष्यम् — Sāyaṇa does not comment on this anuvāka. {verse.sayanaNote}
+    </p>
+  )}
 
   <!-- Bhatta Bhashya (if available and showDetails) -->
-  {showDetails && hasBhattaBhashya && (
+  {showDetails && (hasBhattaBhashya || bhattaJoint) && (
     <details class="collapsible mt-4 border-t pt-4">
       <summary class="collapsible-header bhatta-header">
         <span class="collapsible-icon">▶</span>
         भट्टभास्करभाष्यम् (Bhatta Bhaskara Commentary)
       </summary>
-      <div class="mt-3 bhashya-content">
-        <BhashyaFormatter text={verse.bhattaBhashya} type="bhatta" />
-      </div>
+      {bhattaJoint && (
+        <p class="mt-3 text-sm text-gray-600 joint-note">
+          {isBhattaJointHead ? (
+            <>Bhaṭṭabhāskara comments on this anuvāka together with{' '}
+              {bhattaJoint.members.map((m, i) => (
+                <>{i > 0 && ', '}<a href={anuvakaHref(m)} class="text-primary hover:text-accent">{m}</a></>
+              ))}.</>
+          ) : (
+            <>Bhaṭṭabhāskara comments on this anuvāka together with others; the commentary is on{' '}
+              <a href={anuvakaHref(bhattaJoint.head)} class="text-primary hover:text-accent">TS {bhattaJoint.head}</a>.</>
+          )}
+          {!isBhattaJointHead && bhattaJoint.heading && <span class="block sanskrit-text mt-1">{bhattaJoint.heading}</span>}
+        </p>
+      )}
+      {hasBhattaBhashya && (
+        <div class="mt-3 bhashya-content">
+          <BhashyaFormatter text={verse.bhattaBhashya} type="bhatta" />
+        </div>
+      )}
     </details>
+  )}
+  {showDetails && bhattaMissing && (
+    <p class="mt-4 border-t pt-4 text-sm text-gray-500">
+      भट्टभास्करभाष्यम् — not in the source edition available to this site for this anuvāka.
+    </p>
+  )}
+  {showDetails && bhattaSilent && (
+    <p class="mt-4 border-t pt-4 text-sm text-gray-500">
+      भट्टभास्करभाष्यम् — Bhaṭṭabhāskara does not comment on this anuvāka. {verse.bhattaNote}
+    </p>
   )}
 </article>

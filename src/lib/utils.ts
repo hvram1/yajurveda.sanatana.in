@@ -20,16 +20,24 @@ export interface PanchasatData {
     chandas: string;
   };
   sayanaBhashya?: string;
-  // docx | joint | not_in_source — see complete_pipeline_yajurveda/stage4_integration/ts_bhashya.py
-  sayanaGrade?: 'docx' | 'joint' | 'not_in_source';
-  sayanaJoint?: {
-    head: string;
-    members: string[];
-    grade: string;
-    evidence: string;
-    heading: string;
-  };
+  // Grades and joint groups: see complete_pipeline_yajurveda/stage4_integration/ts_bhashya.py
+  sayanaGrade?: BhashyaGrade;
+  sayanaJoint?: JointCommentary;
+  sayanaNote?: string;
   bhattaBhashya?: string;
+  bhattaGrade?: BhashyaGrade;
+  bhattaJoint?: JointCommentary;
+  bhattaNote?: string;
+}
+
+export type BhashyaGrade = 'docx' | 'joint' | 'not_commented' | 'not_in_source';
+
+export interface JointCommentary {
+  head: string;
+  members: string[];
+  grade: string;
+  evidence: string;
+  heading: string;
 }
 
 export interface StructureIndex {
