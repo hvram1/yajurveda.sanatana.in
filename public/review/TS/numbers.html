@@ -1,0 +1,389 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Bhāṣya Reference Review</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+Devanagari:wght@400;600&display=swap">
+<style>
+@font-face{font-family:"AdiShilaVedic";src:url("fonts/AdishilaVedic.ttf") format("truetype");font-weight:normal;font-style:normal}
+/* Layout: a working desk. Queue down the left, the item in the middle, the printed page on the right; stacked on a phone. */
+:root{
+  --paper:#f6f7f5; --sheet:#ffffff; --ink:#1b2027; --mute:#5d6672; --rule:#d9dde0; --wash:#eceff0;
+  --accent:#2f4a8a; --accent-ink:#ffffff;
+  --ok:#24704a; --ok-wash:#e2f1e8; --warn:#9a5b00; --warn-wash:#f8ecd6; --bad:#a3302a; --bad-wash:#f7e1df;
+  --mark-scan:#2f4a8a; --mark-prat:#24704a; --hl:#fff1b8;
+  --ui:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --deva:"AdiShilaVedic","Noto Serif Devanagari",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#14171b; --sheet:#1c2026; --ink:#e6e9ec; --mute:#9aa3ad; --rule:#323840; --wash:#252a31;
+  --accent:#8fa8e8; --accent-ink:#10141b;
+  --ok:#6cc596; --ok-wash:#1d3328; --warn:#e3a94f; --warn-wash:#3a2c16; --bad:#ef8a83; --bad-wash:#3d2220;
+  --mark-scan:#8fa8e8; --mark-prat:#6cc596; --hl:#4a4220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#14171b; --sheet:#1c2026; --ink:#e6e9ec; --mute:#9aa3ad; --rule:#323840; --wash:#252a31;
+  --accent:#8fa8e8; --accent-ink:#10141b;
+  --ok:#6cc596; --ok-wash:#1d3328; --warn:#e3a94f; --warn-wash:#3a2c16; --bad:#ef8a83; --bad-wash:#3d2220;
+  --mark-scan:#8fa8e8; --mark-prat:#6cc596; --hl:#4a4220; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:15px/1.5 var(--ui);margin:0}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule);padding-block:12px}
+.top-row{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;justify-content:space-between}
+h1{font-size:18px;font-weight:600;margin:0;text-wrap:balance}
+.sub{color:var(--mute);font-size:13px;max-width:70ch}
+.progress{font:500 13px var(--mono);font-variant-numeric:tabular-nums;color:var(--mute)}
+.controls{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:8px;font-size:13px}
+select,button,input[type=text],textarea{font:inherit;color:var(--ink);background:var(--sheet);border:1px solid var(--rule);border-radius:6px}
+select{padding:4px 6px}
+button{padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,.w:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.store{font-size:12px;color:var(--mute)}
+.store b{color:var(--ink);font-weight:500}
+.toplinks{font-size:13px;color:var(--mute)}
+.toplinks a{color:var(--accent)}
+.toplinks b{color:var(--ink);font-weight:600}
+.desk{display:grid;grid-template-columns:200px minmax(0,1fr) minmax(0,1fr);gap:20px;padding-block:16px}
+@media (max-width:1100px){.desk{grid-template-columns:180px minmax(0,1fr)} .scan{grid-column:1/-1}}
+@media (max-width:700px){.desk{grid-template-columns:minmax(0,1fr)} .queue{max-height:200px;position:static} header.top{position:static} .sub{font-size:12px}}
+.queue{overflow:auto;max-height:calc(100vh - 150px);position:sticky;top:120px;align-self:start;font-size:13px}
+@media (max-width:700px){.queue{max-height:200px;position:static}}   /* after the rule above, or it loses */
+.queue h3{font:600 11px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:12px 0 4px}
+.queue h3:first-child{margin-top:0}
+.qlist{display:flex;flex-wrap:wrap;gap:4px}
+.qi{font:500 12px var(--mono);font-variant-numeric:tabular-nums;min-width:34px;padding:3px 6px;border-radius:5px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);position:relative}
+.qi.cur{outline:2px solid var(--accent);outline-offset:1px}
+.qi.done{background:var(--wash);color:var(--mute)}
+.qi.done::after{content:"✓";position:absolute;top:-6px;right:-4px;font-size:10px;color:var(--ok)}
+.qi .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.g-ok{background:var(--ok)} .g-warn{background:var(--warn)} .g-bad{background:var(--bad)}
+.item{min-width:0;display:flex;flex-direction:column;gap:14px}
+.ihead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.ihead h2{font-size:20px;font-weight:600;margin:0;font-variant-numeric:tabular-nums}
+.pill{font:600 11px var(--ui);letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
+.p-ok{background:var(--ok-wash);color:var(--ok)} .p-warn{background:var(--warn-wash);color:var(--warn)} .p-bad{background:var(--bad-wash);color:var(--bad)}
+.p-plain{background:var(--wash);color:var(--mute)}
+.why{margin:0;max-width:65ch}
+.why li{margin-block:2px}
+.evidence{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 12px;font-size:14px}
+.evidence dt{color:var(--mute)}
+.evidence dd{margin:0;min-width:0}
+.deva{font-family:var(--deva)}
+.label{font:600 11px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:0 0 6px}
+.texts{display:grid;gap:8px}
+.text{font-family:var(--deva);font-size:20px;line-height:2.2;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;max-height:340px;overflow:auto;position:relative}
+.texts .text+.text{max-height:220px}
+.text .pid{display:block;font:12px var(--mono);color:var(--mute);line-height:1.6}
+.w{border-radius:4px;padding:0 1px}
+.picking .w{cursor:pointer}
+.picking .w:hover{background:var(--hl)}
+.w.chosen{background:var(--hl);box-shadow:0 0 0 2px var(--accent)}
+sup.mk{font:600 12px var(--ui);padding:0 3px;border-radius:3px;margin:0 1px}
+sup.ms{background:var(--mark-scan);color:var(--sheet)}
+sup.mp{border:1.5px solid var(--mark-prat);color:var(--mark-prat)}
+sup.mx{background:var(--accent);color:var(--accent-ink)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--mute);margin-top:6px}
+.bhashya{font-family:var(--deva);font-size:16px;line-height:1.9;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:10px 14px;max-height:220px;overflow:auto}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.actions button.on{box-shadow:0 0 0 2px var(--accent)}
+.hint{font-size:13px;color:var(--mute)}
+textarea{width:100%;min-height:56px;padding:6px 8px}
+input[type=text]{width:100%;padding:6px 8px;font-family:var(--deva);font-size:16px}
+.decided{font-size:13px;padding:8px 12px;border-radius:6px;background:var(--ok-wash);color:var(--ok)}
+.scan{min-width:0;position:sticky;top:120px;align-self:start}
+@media (max-width:1100px){.scan{position:static}}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;align-items:center}
+.tabs button{padding:2px 8px;font:500 12px var(--mono)}
+.tabs button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.frame{overflow:auto;max-height:calc(100vh - 170px);border:1px solid var(--rule);border-radius:8px;background:#fff}
+.frame img{display:block;width:100%;max-width:100%}
+.frame.zoom img{width:200%;max-width:none}
+.empty{color:var(--mute);padding:24px 0}
+kbd{font:11px var(--mono);border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-left:4px;opacity:.7;background:transparent;color:inherit}
+@media (prefers-reduced-motion:no-preference){.qi,button{transition:border-color .15s,background .15s}}
+</style>
+
+<header class="top wrap">
+  <div class="top-row">
+    <h1 id="title">Bhāṣya reference review</h1>
+    <span class="progress" id="progress">loading…</span>
+  </div>
+  <div class="sub" id="sub">Each item is a reference number that the page and the bhāṣya's own words do not settle between them. Numbers both agree on are not shown, except a small sample.</div>
+  <div class="controls">
+    <label for="route">Show</label>
+    <select id="route"></select>
+    <label><input type="checkbox" id="undecided" checked> only undecided</label>
+    <span class="store" id="store">Decisions are saved in this browser.</span>
+    <button id="download" hidden>Download decisions</button>
+    <span class="toplinks" id="nav"></span>
+  </div>
+</header>
+
+<main class="desk wrap">
+  <nav class="queue" id="queue" aria-label="Items to review"></nav>
+  <section class="item" id="item"><p class="empty">Loading the queue…</p></section>
+  <aside class="scan" id="scan" aria-label="Printed page"></aside>
+</main>
+
+<script>
+(function(){
+const GRADE={confirmed:["Confirmed","ok"],scan:["Page only","warn"],disagree:["Disagree","bad"],
+  out_of_order:["Out of order","bad"],not_found:["Word not in text","bad"],duplicate:["Read twice","bad"],
+  pratika_only:["Bhāṣya only","warn"],unplaced:["Not placed","bad"],
+  variant:["Variant reading","warn"],source:["Source reference","ok"],other:["Footnote","warn"]};
+const WHY={
+  confirmed:"The page and the bhāṣya's own words put this number on the same word. It is shown as a sample: check it like any other.",
+  scan:"Read from the printed page only. The bhāṣya's words did not place it, so nothing confirms it.",
+  disagree:"The printed page and the bhāṣya's words put this number on different words.",
+  out_of_order:"The word read from the page is in the text, but it breaks the order of the numbers around it.",
+  not_found:"The word read from the page is not in the clean text. It may be a misreading.",
+  duplicate:"This number was read twice in the anuvāka. Only one place can be right.",
+  pratika_only:"The bhāṣya's words place it, but no number was read on the page at that place.",
+  unplaced:"Neither the page nor the bhāṣya's words placed this number.",
+  variant:"A variant-reading footnote. Check the reading and the word its mark stands beside.",
+  source:"A source-reference footnote.",
+  other:"A footnote that is neither a clear variant reading nor a source reference."};
+const $=id=>document.getElementById(id);
+// one prapāṭhaka at a time on the site (?part=01.01 loads parts/01.01/); the whole file when run without one
+const PART=new URLSearchParams(location.search).get("part")||"";
+const SRC=n=>PART?`parts/${PART}/${n}`:n;
+const partLabel=()=>PART?` · ${PART.split(".").map(Number).join(".")}`:"";
+function nav(here){const q=PART?"?part="+PART:"";
+  $("nav").innerHTML=[["index.html","All prapāṭhakas"],["numbers.html","Reference numbers"],["footnotes.html","Footnotes"],["openings.html","Openings against the docx"]]
+    .map(([h,t])=>h===here?`<b>${t}</b>`:`<a href="${h}${h==="index.html"?"":q}">${t}</a>`).join(" · ")}
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const docId=id=>id.replace(/\//g,".").replace(/#/g,"~").replace(/\*/g,"@");
+let Q=null, items=[], cur=null, decisions={}, store="local", db=null, uid=null, pageIdx=0, picking=false, picked=null;
+const LKEY=()=>"review-decisions:"+(Q?Q.summary.text:"");
+
+function label(k){
+  let m=/^(\d\d)\/(\d\d)\/(\d\d)$/.exec(k); if(m) return `TS ${+m[1]}.${+m[2]}.${+m[3]}`;
+  m=/^P(\d+)\.Pr(\d+)\.A(\d+)$/.exec(k); if(m) return `TB ${m[1]}.${m[2]}.${m[3]}`;
+  return k;
+}
+function sup(n){return String(n).replace(/\d/g,d=>"⁰¹²³⁴⁵⁶⁷⁸⁹"[d])}
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LKEY())||"{}")}catch(e){return {}}}
+// re-read before writing: the footnote page may be open in another tab on the same store
+function saveLocal(id,body){try{const all=loadLocal(); if(body) all[id]=body; else delete all[id]; localStorage.setItem(LKEY(),JSON.stringify(all))}catch(e){}}
+
+function visible(){
+  const r=$("route").value, und=$("undecided").checked;
+  return items.filter(it=>(r==="all"||it.route===r)&&(!und||!decisions[it.id]||it===cur));
+}
+function progress(){
+  const want=items.filter(it=>it.route!=="deferred"), done=want.filter(it=>decisions[it.id]).length;
+  $("progress").textContent=`${done} of ${want.length} decided`;
+  $("download").hidden=store!=="local"||!Object.keys(decisions).length;
+}
+function renderQueue(){
+  const vis=visible(), groups={};
+  vis.forEach(it=>(groups[it.anuvaka]=groups[it.anuvaka]||[]).push(it));
+  const html=Object.keys(groups).map(k=>`<h3>${esc(label(k))}</h3><div class="qlist">`+groups[k].map(it=>{
+    const g=GRADE[it.grade]||["",""];
+    return `<button class="qi${it===cur?" cur":""}${decisions[it.id]?" done":""}" data-id="${esc(it.id)}" title="${esc(g[0])}"><span class="dot g-${g[1]}"></span>${it.type==="footnote"?esc(it.mark||"*"):it.n}</button>`}).join("")+`</div>`).join("");
+  $("queue").innerHTML=html||`<p class="empty">Nothing left here.</p>`;
+  $("queue").querySelectorAll(".qi").forEach(b=>b.onclick=()=>open(items.find(x=>x.id===b.dataset.id)));
+  progress();
+}
+
+function marksFor(it){
+  const ms=[];
+  (it.scan||[]).forEach(s=>{if(s.kind) ms.push({kind:s.kind,part:s.part,offset:s.offset,cls:"ms",n:it.n})});
+  const p=it.pratika; if(p&&p.kind) ms.push({kind:p.kind,part:p.part,offset:p.offset,cls:"mp",n:it.n});
+  return ms;
+}
+function renderText(it){
+  const parts=Q.texts[it.anuvaka]||[], ms=marksFor(it);
+  let show=[...new Set(ms.map(m=>m.kind+":"+m.part))].map(s=>{const [k,p]=s.split(":");return {kind:k,part:+p}});
+  if(!show.length) show=parts.map((_,i)=>({kind:"samhita",part:i}));
+  if(picked&&!show.some(s=>s.kind===picked.kind&&s.part===picked.part)) show.push({kind:picked.kind,part:picked.part});
+  return show.map(({kind,part})=>{
+    const t=(parts[part]||{})[kind]||"";
+    const here=ms.filter(m=>m.kind===kind&&m.part===part);
+    // Each word keeps the space before it inside its own span, so a word that
+    // opens with a combining sign (ऊर्जं॒ ॅव्य॑भजन्त, TB 1.1.3) meets the shaper
+    // exactly as on the site, where the line is one run. In headless Chromium
+    // both pages still draw that ॅ on a dotted circle: it is in the data.
+    let out="", re=/(\s*)(\S+)/g, m;
+    while((m=re.exec(t))){
+      const lead=m[1], word=m[2], a=m.index+lead.length, b=a+word.length;
+      const at=here.filter(x=>x.offset>=a&&x.offset<b).sort((x,y)=>x.offset-y.offset);
+      const ch=picked&&picked.kind===kind&&picked.part===part&&picked.offset===a;
+      let before=ch?`<sup class="mk mx">${it.n}</sup>`:"", w="", k=0;
+      at.forEach(x=>{
+        const s=`<sup class="mk ${x.cls}">${x.n}</sup>`;
+        if(x.offset===a) before+=s; else {w+=esc(word.slice(k,x.offset-a))+s; k=x.offset-a}});
+      w+=esc(word.slice(k));
+      out+=`${before}<span class="w${ch?" chosen":""}" tabindex="${picking?0:-1}" data-kind="${kind}" data-part="${part}" data-offset="${a}">${esc(lead)}${w}</span>`;
+    }
+    return `<div class="text"><span class="pid">${esc((parts[part]||{}).id||"")} · ${kind==="pada"?"padapāṭha":"saṃhitā"}</span>${out}</div>`;
+  }).join("");
+}
+
+function evidence(it){
+  if(it.type==="footnote") return `<dl class="evidence">
+    <dt>Mark</dt><dd>${esc(it.mark)} in the ${esc(it.where||"text")}, between <span class="deva">${esc(it.before)}</span> and <span class="deva">${esc(it.after)}</span></dd>
+    <dt>Footnote</dt><dd class="deva">${esc(it.mark)}${esc(it.note)}</dd>
+    <dt>Page</dt><dd>${esc(pageLabel(it.pages[0]))}</dd></dl>`;
+  const rows=[];
+  (it.scan||[]).forEach(s=>rows.push(`<dt>Page reads</dt><dd><span class="deva">${sup(it.n)}${esc(s.word)}</span> on ${esc(pageLabel(s.page))}${s.kind?(s.kind==="pada"?" · in the padapāṭha":""):" (word not found in the text)"}${s.basis==="mapped"?" · agrees with the bhāṣya's place in the other text, by position":""}${s.unsure?" · marked unsure":""}</dd>`));
+  if(!(it.scan||[]).length) rows.push(`<dt>Page reads</dt><dd>no number ${it.n} read in the mantra</dd>`);
+  rows.push(it.bhashya_scan?`<dt>Bhāṣya on the page</dt><dd><span class="deva">${sup(it.n)}${esc(it.bhashya_scan)}</span> on ${esc(pageLabel(it.bhashya_page))}${it.bhashya&&opening(it.bhashya)!==opening(it.bhashya_scan)?` · the digital text opens <span class="deva">${esc(it.bhashya.split(/\s+/).slice(0,2).join(" "))}</span>`:""}</dd>`
+    :`<dt>Bhāṣya on the page</dt><dd>no paragraph ${it.n} read on the page</dd>`);
+  const p=it.pratika;
+  rows.push(p&&p.kind?`<dt>Bhāṣya's words</dt><dd>place it at <span class="deva">${esc(p.at)}</span> (${esc(p.support)})</dd>`
+    :`<dt>Bhāṣya's words</dt><dd>${p&&p.none?`did not place it (looked for <span class="deva">${esc(p.none)}</span>)`:"no pratīka to look for"}</dd>`);
+  return `<dl class="evidence">${rows.join("")}</dl>`;
+}
+function opening(s){return (String(s||"").trim().split(/\s+/)[0]||"").replace(/[^ऀ-ॿ]|[॑-॔]/g,"")}  // accents aside: the docx has them, the page reading not
+function pageLabel(pid){const m=Q.pages[pid]; return m&&m.printed?`p. ${m.printed}`:pid}
+
+function actions(it){
+  const d=decisions[it.id];
+  const done=d?`<div class="decided">Decided: ${esc(verdictText(d))}${d.note?" · "+esc(d.note):""} <button id="undo">Change</button></div>`:"";
+  if(it.type==="footnote") return done+`<div class="actions">
+      <button class="primary" data-v="correct">Reads correctly <kbd>1</kbd></button>
+      <button data-v="misread">Correct the reading <kbd>2</kbd></button>
+      <button data-v="not_footnote">Not a footnote <kbd>3</kbd></button></div>
+    <div id="fix" hidden><p class="label">The footnote as printed</p><input type="text" id="reading" value="${esc(it.note)}"><div class="actions" style="margin-top:8px"><button class="primary" id="savefix">Save reading</button></div></div>
+    <p class="label">Note (optional)</p><textarea id="note" placeholder="Anything the next reader should know"></textarea>`;
+  const s=(it.scan||[]).find(x=>x.kind), p=it.pratika&&it.pratika.kind;
+  const both=s&&p&&!(s.part===it.pratika.part&&Math.abs(s.offset-it.pratika.offset)<=18);
+  let b="";
+  if(s&&(!p||!both)) b+=`<button class="primary" data-v="right">Number is on the right word <kbd>1</kbd></button>`;
+  if(both) b+=`<button class="primary" data-v="scan">Page reading is right <kbd>1</kbd></button><button class="primary" data-v="pratika">Bhāṣya's place is right <kbd>2</kbd></button>`;
+  if(!s&&p) b+=`<button class="primary" data-v="pratika">Bhāṣya's place is right <kbd>1</kbd></button>`;
+  b+=`<button data-v="pick"${picking?' class="on"':""}>Choose the word <kbd>W</kbd></button>
+      <button data-v="absent">Not printed <kbd>X</kbd></button>
+      <button data-v="unsure">Can't tell <kbd>?</kbd></button>`;
+  return done+`<div class="actions">${b}</div>
+    <p class="hint" id="pickhint"${picking?"":" hidden"}>Click the word the number stands before, then save.${picked?` <button class="primary" id="savepick">Save: ${sup(it.n)} before this word</button>`:""}</p>
+    <p class="label">Note (optional)</p><textarea id="note" placeholder="Anything the next reader should know">${esc(d&&d.note||"")}</textarea>`;
+}
+function verdictText(d){return ({right:"on the right word",scan:"page reading is right",pratika:"bhāṣya's place is right",
+  moved:`moved to ${d.word||"another word"}`,absent:"not printed",unsure:"can't tell",correct:"reads correctly",
+  misread:`reads ${d.reading||""}`,not_footnote:"not a footnote"})[d.verdict]||d.verdict}
+
+function open(it){
+  if(!it){$("item").innerHTML=`<p class="empty">Nothing to review with these filters.</p>`;$("scan").innerHTML="";renderQueue();return}
+  if(it!==cur){picking=false;picked=null;pageIdx=0}
+  cur=it; try{localStorage.setItem(LKEY()+":cur",it.id)}catch(e){}
+  const g=GRADE[it.grade]||[it.grade,"plain"];
+  const why=[WHY[it.grade]];
+  if(it.paragraph==="scan_only") why.push("The page prints this bhāṣya paragraph's number, but the digital bhāṣya text lacks it.");
+  if(it.unsure) why.push("The page reading was marked unsure.");
+  if(it.older_prompt) why.push("This page was read with the wrong anuvāka's text beside it (the page map was corrected afterwards). Check the word against the print, not the reading.");
+  const head=it.type==="footnote"?`${esc(label(it.anuvaka))} · footnote ${esc(it.mark)}`:`${esc(label(it.anuvaka))} · number ${it.n}`;
+  const bh=it.type==="number"?`<div><p class="label">Bhāṣya paragraph ${it.n}${it.bhashya?"":" (from the page)"}</p><div class="bhashya">${it.bhashya||it.bhashya_scan?`<sup class="mk ${it.bhashya_scan?"ms":"mp"}">${it.n}</sup>`:""}${esc(it.bhashya||it.bhashya_scan||"Not in the digital text and not read from the page.")}</div></div>`:"";
+  const txt=it.type==="number"?`<div><p class="label">Clean text${picking?" · choose the word":""}</p><div class="texts${picking?" picking":""}" id="text">${renderText(it)}</div>
+    <div class="legend"><span><sup class="mk ms">${it.n}</sup> where the page reading puts it</span><span><sup class="mk mp">${it.n}</sup> where the bhāṣya's words put it</span>${picked?`<span><sup class="mk mx">${it.n}</sup> your choice</span>`:""}</div></div>`:"";
+  $("item").innerHTML=`<div class="ihead"><h2>${head}</h2><span class="pill p-${g[1]}">${esc(g[0])}</span>${it.route==="sample"?`<span class="pill p-plain">sample</span>`:""}</div>
+    <ul class="why">${why.map(w=>`<li>${esc(w)}</li>`).join("")}</ul>${evidence(it)}${txt}${bh}${actions(it)}`;
+  wire(it); renderScan(it); renderQueue();
+  // a pañcāśat runs past the box: bring each box's first mark into view
+  $("item").querySelectorAll(".texts .text").forEach(box=>{
+    const mk=box.querySelector(".mk"); if(mk) box.scrollTop=Math.max(0,mk.offsetTop-box.clientHeight/3)});
+}
+function renderScan(it){
+  const ps=it.pages.filter(p=>Q.pages[p]);
+  if(!ps.length){$("scan").innerHTML=`<p class="empty">No printed page for this item.</p>`;return}
+  const pid=ps[Math.min(pageIdx,ps.length-1)], m=Q.pages[pid];
+  $("scan").innerHTML=`<div class="tabs">${ps.map((p,i)=>`<button data-i="${i}" class="${p===pid?"on":""}">${esc(pageLabel(p))}</button>`).join("")}
+    <button id="zoom">Zoom</button></div>
+    <div class="frame" id="frame"><img src="${esc(m.file)}" alt="Printed page ${esc(pageLabel(pid))}"></div>`;
+  $("scan").querySelectorAll(".tabs [data-i]").forEach(b=>b.onclick=()=>{pageIdx=+b.dataset.i;renderScan(it)});
+  $("zoom").onclick=()=>$("frame").classList.toggle("zoom");
+}
+function wire(it){
+  const note=()=>($("note")||{}).value||"";
+  $("item").querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{
+    const v=b.dataset.v;
+    if(v==="pick"){picking=!picking;open(it);return}
+    if(v==="misread"){$("fix").hidden=false;$("reading").focus();return}
+    decide(it,{verdict:v,note:note()});
+  });
+  const sp=$("savepick"); if(sp) sp.onclick=()=>decide(it,{verdict:"moved",kind:picked.kind,part:picked.part,offset:picked.offset,word:picked.word,note:note()});
+  const sf=$("savefix"); if(sf) sf.onclick=()=>decide(it,{verdict:"misread",reading:$("reading").value,note:note()});
+  const u=$("undo"); if(u) u.onclick=()=>undecide(it);
+  if(picking) $("text").querySelectorAll(".w").forEach(w=>{
+    const f=()=>{picked={kind:w.dataset.kind,part:+w.dataset.part,offset:+w.dataset.offset,word:w.textContent.replace(/[⁰-⁹\d]/g,"").trim()};open(it)};
+    w.onclick=f; w.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f()}};
+  });
+}
+function next(){
+  const vis=visible(), i=vis.indexOf(cur);
+  return vis.slice(i+1).find(x=>!decisions[x.id])||vis.find(x=>!decisions[x.id]&&x!==cur)||null;
+}
+async function decide(it,body){
+  body.item=it.id; body.at=new Date().toISOString(); if(uid) body.by=uid;
+  Object.keys(body).forEach(k=>body[k]===undefined&&delete body[k]);
+  decisions[it.id]=body;
+  if(store==="db"){
+    try{await db.collection("decisions").doc(docId(it.id)).set(body)}
+    catch(e){status(`This decision was not saved (${e&&e.code||"error"}). It is kept in this browser.`);store="local"}
+  }
+  if(store==="local") saveLocal(it.id,body);
+  const n=next(); open(n||it);
+}
+async function undecide(it){
+  delete decisions[it.id];
+  if(store==="db"){try{await db.collection("decisions").doc(docId(it.id)).delete()}catch(e){}}
+  else saveLocal(it.id,null);
+  open(it);
+}
+function status(t){$("store").textContent=t}
+
+document.addEventListener("keydown",e=>{
+  if(!cur||/^(TEXTAREA|INPUT|SELECT)$/.test(e.target.tagName)) return;
+  const btn=v=>{const b=$("item").querySelector(`[data-v="${v}"]`);if(b){e.preventDefault();b.click()}};
+  const prim=[...$("item").querySelectorAll(".actions button.primary[data-v]")];
+  if(e.key==="1"&&prim[0]){e.preventDefault();prim[0].click()}
+  else if(e.key==="2"&&prim[1]){e.preventDefault();prim[1].click()}
+  else if(e.key==="2"&&cur.type==="footnote") btn("misread");
+  else if(e.key==="3"&&cur.type==="footnote") btn("not_footnote");
+  else if(e.key==="w"||e.key==="W") btn("pick");
+  else if(e.key==="x"||e.key==="X") btn("absent");
+  else if(e.key==="?") btn("unsure");
+  else if(e.key==="j"||e.key==="ArrowDown"){const v=visible(),i=v.indexOf(cur);if(v[i+1]){e.preventDefault();open(v[i+1])}}
+  else if(e.key==="k"||e.key==="ArrowUp"){const v=visible(),i=v.indexOf(cur);if(i>0){e.preventDefault();open(v[i-1])}}
+});
+
+$("download").onclick=()=>{
+  const blob=new Blob([JSON.stringify({text:Q.summary.text,model:Q.summary.model,saved:new Date().toISOString(),decisions:Object.values(loadLocal())},null,1)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=`decisions_${Q.summary.text}_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); a.remove();
+};
+
+async function connect(){
+  const use=window.claude&&window.claude.use;
+  if(!use) return;
+  const [d,u]=await Promise.all([window.claude.use("db"),window.claude.use("user")]).catch(()=>[null,null]);
+  if(!d) return;
+  db=d; uid=u?await u.id():null;
+  if(u&&u.can){const w=await u.can("data.write"); if(w===false){status("You can read this review but not record decisions. Ask the owner for Contributor access.");return}}
+  store="db"; status("Decisions are saved to this page and shared with the project.");
+  db.collection("decisions").onSnapshot(snap=>{
+    const next={}; snap.docs.forEach(doc=>{const b=doc.data(); if(b&&b.item) next[b.item]=b});
+    decisions=next; if(cur) open(cur); else renderQueue();
+  },e=>{store="local";decisions=loadLocal();status(`The shared store stopped answering (${e.code}). Decisions are kept in this browser.`);renderQueue()});
+}
+
+fetch(SRC("queue.json")).then(r=>r.json()).then(q=>{
+  Q=q; items=q.items; decisions=loadLocal();
+  const s=q.summary, by=s.by_route||{};
+  $("title").textContent=`${s.text==="TS"?"Taittirīya Saṃhitā":s.text.replace(/_/g," ")}${partLabel()} · Bhaṭṭabhāskara reference review`; nav("numbers.html");
+  const auto=by.auto||0;
+  $("sub").textContent=`${s.items} reference numbers were checked against ${s.pages_read} printed pages. ${auto} are settled because the page and the bhāṣya's own words agree, and are not shown. Below are the ${(by.vidwan||0)} that need a reader${by.sample?`, and a sample of ${by.sample} agreed ones to check how often agreement is still wrong`:""}.`;
+  const opts=[["vidwan",`To review (${items.filter(i=>i.route==="vidwan").length})`],["sample",`Sample of agreed (${items.filter(i=>i.route==="sample").length})`],["all",`All (${items.length})`]];
+  $("route").innerHTML=opts.map(([v,t])=>`<option value="${v}">${esc(t)}</option>`).join("");
+  $("route").onchange=$("undecided").onchange=()=>{const v=visible();open(v.includes(cur)?cur:v[0])};
+  let start=null; try{const id=localStorage.getItem(LKEY()+":cur");start=items.find(x=>x.id===id)}catch(e){}
+  open(start||visible()[0]);
+  connect();
+}).catch(e=>{$("item").innerHTML=`<p class="empty">The queue could not be loaded (${esc(e.message)}).</p>`});
+})();
+</script>
+
+</body></html>
