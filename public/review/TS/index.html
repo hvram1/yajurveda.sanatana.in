@@ -105,7 +105,7 @@ kbd{font:11px var(--mono);border:1px solid currentColor;border-radius:4px;paddin
 @media (prefers-reduced-motion:no-preference){.qi,button{transition:border-color .15s,background .15s}}
 </style>
 <style>
-/* The contents: one row per prapāṭhaka, its three reviews and how far each has got in this browser. */
+/* The contents: one row per praśna (TS) or prapāṭhaka (TB, TA), its three reviews and how far each has got in this browser. */
 .contents{max-width:980px;padding-block:20px}
 .intro{max-width:70ch;margin:0 0 16px}
 .intro p{margin:0 0 8px}
@@ -143,7 +143,7 @@ kbd{font:11px var(--mono);border:1px solid currentColor;border-radius:4px;paddin
 
 <main class="contents wrap">
   <div class="intro">
-    <p>Each prapāṭhaka has three reviews, checked against the printed page beside each item.</p>
+    <p>Each <span class="unit">part</span> has three reviews, checked against the printed page beside each item.</p>
     <p><b>Reference numbers</b>: where the page and the bhāṣya's own words do not settle which mantra word a number stands on. <b>Footnotes</b>: as read from the foot of each page. <b>Openings</b>: the first words of each bhāṣya paragraph where the page and the docx differ.</p>
     <p class="hint">Decisions are kept in this browser until you download them. Download from here or from any review page: the file holds all three.</p>
   </div>
@@ -173,13 +173,15 @@ function cell(h,ids,page,part){
 }
 fetch("parts.json").then(r=>r.json()).then(P=>{
   text=P.text; decisions=loadLocal();
+  const unit=text==="TS"?"praśna":"prapāṭhaka";   // the Saṃhitā divides into praśnas, TB and TA into prapāṭhakas
+  document.querySelectorAll(".unit").forEach(e=>e.textContent=unit);
   $("title").textContent=`${text==="TS"?"Taittirīya Saṃhitā":text.replace(/_/g," ")} · Bhaṭṭabhāskara review`;
   const all={n:[],f:[],o:[]};
   const rows=P.parts.map(p=>{
     all.n.push(...p.numbers); all.f.push(...p.footnotes); all.o.push(...p.openings);
     return `<tr><td class="p">${esc(label(p.part))}<small>${esc(range(p.anuvakas))}</small></td>${cell("Reference numbers",p.numbers,"numbers.html",p.part)}${cell("Footnotes",p.footnotes,"footnotes.html",p.part)}${cell("Openings",p.openings,"openings.html",p.part)}</tr>`}).join("");
   const tot=ids=>`${ids.filter(i=>decisions[i]).length} / ${ids.length}`;
-  $("table").innerHTML=`<thead><tr><th>Prapāṭhaka</th><th>Reference numbers</th><th>Footnotes</th><th>Openings</th></tr></thead><tbody>${rows}
+  $("table").innerHTML=`<thead><tr><th>${unit[0].toUpperCase()+unit.slice(1)}</th><th>Reference numbers</th><th>Footnotes</th><th>Openings</th></tr></thead><tbody>${rows}
     <tr class="totals"><td class="p">All</td><td class="cell" data-h="Reference numbers">${tot(all.n)}</td><td class="cell" data-h="Footnotes">${tot(all.f)}</td><td class="cell" data-h="Openings">${tot(all.o)}</td></tr></tbody>`;
   const ids=[...all.n,...all.f,...all.o], done=ids.filter(i=>decisions[i]).length;
   $("progress").textContent=`${done} of ${ids.length} decided`;

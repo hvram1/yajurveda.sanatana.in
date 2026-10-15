@@ -146,12 +146,13 @@ kbd{font:11px var(--mono);border:1px solid currentColor;border-radius:4px;paddin
 (function(){
 const GRADE={differs:["Words differ","warn"],other_paragraph:["Different paragraph","bad"]};
 const $=id=>document.getElementById(id);
-// one prapāṭhaka at a time on the site (?part=01.01 loads parts/01.01/); the whole file when run without one
+// one praśna (TS) or prapāṭhaka (TB, TA) at a time on the site (?part=01.01 loads parts/01.01/); the whole file when run without one
 const PART=new URLSearchParams(location.search).get("part")||"";
 const SRC=n=>PART?`parts/${PART}/${n}`:n;
 const partLabel=()=>PART?` · ${PART.split(".").map(Number).join(".")}`:"";
-function nav(here){const q=PART?"?part="+PART:"";
-  $("nav").innerHTML=[["index.html","All prapāṭhakas"],["numbers.html","Reference numbers"],["footnotes.html","Footnotes"],["openings.html","Openings against the docx"]]
+const units=t=>t==="TS"?"praśnas":"prapāṭhakas";   // the Saṃhitā divides into praśnas, TB and TA into prapāṭhakas
+function nav(here,t){const q=PART?"?part="+PART:"";
+  $("nav").innerHTML=[["index.html",`All ${units(t)}`],["numbers.html","Reference numbers"],["footnotes.html","Footnotes"],["openings.html","Openings against the docx"]]
     .map(([h,t])=>h===here?`<b>${t}</b>`:`<a href="${h}${h==="index.html"?"":q}">${t}</a>`).join(" · ")}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const docId=id=>id.replace(/\//g,".").replace(/#/g,"~").replace(/\*/g,"@");
@@ -281,7 +282,7 @@ async function connect(){
 fetch(SRC("openings.json")).then(r=>r.json()).then(o=>{
   O=o; groups=o.groups; text=o.summary.text; decisions=loadLocal();
   const s=o.summary, b=s.by_grade||{};
-  $("title").textContent=`${text==="TS"?"Taittirīya Saṃhitā":text}${partLabel()} · Bhaṭṭabhāskara bhāṣya: page against docx`; nav("openings.html");
+  $("title").textContent=`${text==="TS"?"Taittirīya Saṃhitā":text}${partLabel()} · Bhaṭṭabhāskara bhāṣya: page against docx`; nav("openings.html",text);
   $("sub").textContent=`The opening words of ${s.openings} bhāṣya paragraphs, as read from the printed pages, were compared with the docx. ${b.same||0} agree. The ${s.shown} below do not, on ${s.pages} pages. Only the first few words of each paragraph were read; the rest of the paragraph is not compared.`;
   $("undecided").onchange=()=>{const v=visible();open(v.includes(cur)?cur:v[0])};
   let start=null; try{const p=localStorage.getItem(LKEY()+":op");start=groups.find(g=>g.page===p)}catch(e){}

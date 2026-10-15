@@ -146,12 +146,13 @@ const WHY={
   source:"A source-reference footnote.",
   other:"A footnote that is neither a clear variant reading nor a source reference."};
 const $=id=>document.getElementById(id);
-// one prapāṭhaka at a time on the site (?part=01.01 loads parts/01.01/); the whole file when run without one
+// one praśna (TS) or prapāṭhaka (TB, TA) at a time on the site (?part=01.01 loads parts/01.01/); the whole file when run without one
 const PART=new URLSearchParams(location.search).get("part")||"";
 const SRC=n=>PART?`parts/${PART}/${n}`:n;
 const partLabel=()=>PART?` · ${PART.split(".").map(Number).join(".")}`:"";
-function nav(here){const q=PART?"?part="+PART:"";
-  $("nav").innerHTML=[["index.html","All prapāṭhakas"],["numbers.html","Reference numbers"],["footnotes.html","Footnotes"],["openings.html","Openings against the docx"]]
+const units=t=>t==="TS"?"praśnas":"prapāṭhakas";   // the Saṃhitā divides into praśnas, TB and TA into prapāṭhakas
+function nav(here,t){const q=PART?"?part="+PART:"";
+  $("nav").innerHTML=[["index.html",`All ${units(t)}`],["numbers.html","Reference numbers"],["footnotes.html","Footnotes"],["openings.html","Openings against the docx"]]
     .map(([h,t])=>h===here?`<b>${t}</b>`:`<a href="${h}${h==="index.html"?"":q}">${t}</a>`).join(" · ")}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const docId=id=>id.replace(/\//g,".").replace(/#/g,"~").replace(/\*/g,"@");
@@ -373,7 +374,7 @@ async function connect(){
 fetch(SRC("queue.json")).then(r=>r.json()).then(q=>{
   Q=q; items=q.items; decisions=loadLocal();
   const s=q.summary, by=s.by_route||{};
-  $("title").textContent=`${s.text==="TS"?"Taittirīya Saṃhitā":s.text.replace(/_/g," ")}${partLabel()} · Bhaṭṭabhāskara reference review`; nav("numbers.html");
+  $("title").textContent=`${s.text==="TS"?"Taittirīya Saṃhitā":s.text.replace(/_/g," ")}${partLabel()} · Bhaṭṭabhāskara reference review`; nav("numbers.html",s.text);
   const auto=by.auto||0;
   $("sub").textContent=`${s.items} reference numbers were checked against ${s.pages_read} printed pages. ${auto} are settled because the page and the bhāṣya's own words agree, and are not shown. Below are the ${(by.vidwan||0)} that need a reader${by.sample?`, and a sample of ${by.sample} agreed ones to check how often agreement is still wrong`:""}.`;
   const opts=[["vidwan",`To review (${items.filter(i=>i.route==="vidwan").length})`],["sample",`Sample of agreed (${items.filter(i=>i.route==="sample").length})`],["all",`All (${items.length})`]];
